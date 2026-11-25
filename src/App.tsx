@@ -23,12 +23,15 @@ import { GramBotChat } from './components/ai/GramBotChat';
 
 // Survey
 import { SurveyPwa } from './components/survey/SurveyPwa';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 export function App() {
   return (
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
+    <ErrorBoundary>
+      <LanguageProvider>
+        <AppContent />
+      </LanguageProvider>
+    </ErrorBoundary>
   );
 }
 

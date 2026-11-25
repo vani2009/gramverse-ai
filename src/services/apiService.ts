@@ -3,8 +3,27 @@
  * Connects React Frontend with FastAPI Backend, PostgreSQL/PostGIS, and SQLite.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
-const HEALTH_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000/health';
+const isBrowser = typeof window !== 'undefined';
+const isLocalhost = isBrowser && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (isLocalhost ? 'http://localhost:8000/api/v1' : '');
+const HEALTH_URL = import.meta.env.VITE_BACKEND_URL || (isLocalhost ? 'http://localhost:8000/health' : '');
+
+/** Safe fetch with strict timeout and remote HTTPS localhost guard */
+async function safeFetch(url: string, options: RequestInit = {}, timeoutMs: number = 1500): Promise<Response | null> {
+  if (!url) return null;
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    const res = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return res;
+  } catch {
+    return null;
+  }
+}
 
 export interface GeoJSONFeature {
   type: 'Feature';
@@ -39,11 +58,8 @@ class ApiService {
   /** Check if FastAPI backend is online and database is connected */
   async checkHealth(): Promise<BackendHealth | null> {
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
-      const res = await fetch(HEALTH_URL, { signal: controller.signal });
-      clearTimeout(timeoutId);
-      if (!res.ok) return null;
+      const res = await safeFetch(HEALTH_URL, {}, 1200);
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -57,13 +73,14 @@ class ApiService {
   /** Fetch RFC 7946 GeoJSON infrastructure assets */
   async getGisAssets(villageId?: number, type?: string): Promise<GeoJSONFeatureCollection | null> {
     try {
+      if (!API_BASE_URL) return null;
       const params = new URLSearchParams();
       if (villageId) params.append('village_id', villageId.toString());
       if (type) params.append('type', type);
 
       const url = `${API_BASE_URL}/gis/assets?${params.toString()}`;
-      const res = await fetch(url, { headers: this.getAuthHeader() });
-      if (!res.ok) return null;
+      const res = await safeFetch(url, { headers: this.getAuthHeader() });
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -73,13 +90,14 @@ class ApiService {
   /** Fetch RFC 7946 GeoJSON complaints for heatmap & marker rendering */
   async getGisComplaints(villageId?: number, status?: string): Promise<GeoJSONFeatureCollection | null> {
     try {
+      if (!API_BASE_URL) return null;
       const params = new URLSearchParams();
       if (villageId) params.append('village_id', villageId.toString());
       if (status) params.append('status', status);
 
       const url = `${API_BASE_URL}/gis/complaints?${params.toString()}`;
-      const res = await fetch(url, { headers: this.getAuthHeader() });
-      if (!res.ok) return null;
+      const res = await safeFetch(url, { headers: this.getAuthHeader() });
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -89,13 +107,14 @@ class ApiService {
   /** Radius search: finds assets within R meters from given GPS coordinates */
   async getNearbyAssets(lat: number, lon: number, radiusMeters: number = 1000): Promise<GeoJSONFeatureCollection | null> {
     try {
+      if (!API_BASE_URL) return null;
       const params = new URLSearchParams({
         latitude: lat.toString(),
         longitude: lon.toString(),
         radius_meters: radiusMeters.toString()
       });
-      const res = await fetch(`${API_BASE_URL}/gis/nearby?${params.toString()}`, { headers: this.getAuthHeader() });
-      if (!res.ok) return null;
+      const res = await safeFetch(`${API_BASE_URL}/gis/nearby?${params.toString()}`, { headers: this.getAuthHeader() });
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -108,8 +127,9 @@ class ApiService {
 
   async getVillages(): Promise<any[] | null> {
     try {
-      const res = await fetch(`${API_BASE_URL}/villages`, { headers: this.getAuthHeader() });
-      if (!res.ok) return null;
+      if (!API_BASE_URL) return null;
+      const res = await safeFetch(`${API_BASE_URL}/villages`, { headers: this.getAuthHeader() });
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -118,8 +138,9 @@ class ApiService {
 
   async getVillageDetail(villageId: number): Promise<any | null> {
     try {
-      const res = await fetch(`${API_BASE_URL}/villages/${villageId}`, { headers: this.getAuthHeader() });
-      if (!res.ok) return null;
+      if (!API_BASE_URL) return null;
+      const res = await safeFetch(`${API_BASE_URL}/villages/${villageId}`, { headers: this.getAuthHeader() });
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -128,8 +149,9 @@ class ApiService {
 
   async getVillageDashboard(villageId: number): Promise<any | null> {
     try {
-      const res = await fetch(`${API_BASE_URL}/dashboard/village/${villageId}`, { headers: this.getAuthHeader() });
-      if (!res.ok) return null;
+      if (!API_BASE_URL) return null;
+      const res = await safeFetch(`${API_BASE_URL}/dashboard/village/${villageId}`, { headers: this.getAuthHeader() });
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -142,10 +164,11 @@ class ApiService {
 
   async getComplaints(villageId?: number): Promise<any[] | null> {
     try {
+      if (!API_BASE_URL) return null;
       const params = new URLSearchParams();
       if (villageId) params.append('village_id', villageId.toString());
-      const res = await fetch(`${API_BASE_URL}/complaints?${params.toString()}`, { headers: this.getAuthHeader() });
-      if (!res.ok) return null;
+      const res = await safeFetch(`${API_BASE_URL}/complaints?${params.toString()}`, { headers: this.getAuthHeader() });
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -159,12 +182,13 @@ class ApiService {
     longitude?: number;
   }): Promise<any | null> {
     try {
-      const res = await fetch(`${API_BASE_URL}/complaints`, {
+      if (!API_BASE_URL) return null;
+      const res = await safeFetch(`${API_BASE_URL}/complaints`, {
         method: 'POST',
         headers: this.getAuthHeader(),
         body: JSON.stringify(payload)
       });
-      if (!res.ok) return null;
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -178,7 +202,8 @@ class ApiService {
     overrideCategory?: string
   ): Promise<any | null> {
     try {
-      const res = await fetch(`${API_BASE_URL}/complaints/${complaintId}/status`, {
+      if (!API_BASE_URL) return null;
+      const res = await safeFetch(`${API_BASE_URL}/complaints/${complaintId}/status`, {
         method: 'PATCH',
         headers: this.getAuthHeader('panchayat'),
         body: JSON.stringify({
@@ -187,7 +212,7 @@ class ApiService {
           official_override_category: overrideCategory
         })
       });
-      if (!res.ok) return null;
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -200,10 +225,11 @@ class ApiService {
 
   async getHouseholds(villageId?: number): Promise<any[] | null> {
     try {
+      if (!API_BASE_URL) return null;
       const params = new URLSearchParams();
       if (villageId) params.append('village_id', villageId.toString());
-      const res = await fetch(`${API_BASE_URL}/households?${params.toString()}`, { headers: this.getAuthHeader() });
-      if (!res.ok) return null;
+      const res = await safeFetch(`${API_BASE_URL}/households?${params.toString()}`, { headers: this.getAuthHeader() });
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -212,12 +238,13 @@ class ApiService {
 
   async createHousehold(payload: any): Promise<any | null> {
     try {
-      const res = await fetch(`${API_BASE_URL}/households`, {
+      if (!API_BASE_URL) return null;
+      const res = await safeFetch(`${API_BASE_URL}/households`, {
         method: 'POST',
         headers: this.getAuthHeader('survey'),
         body: JSON.stringify(payload)
       });
-      if (!res.ok) return null;
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;
@@ -238,12 +265,13 @@ class ApiService {
     results: any[];
   } | null> {
     try {
-      const res = await fetch(`${API_BASE_URL}/surveys/sync`, {
+      if (!API_BASE_URL) return null;
+      const res = await safeFetch(`${API_BASE_URL}/surveys/sync`, {
         method: 'POST',
         headers: this.getAuthHeader('survey'),
         body: JSON.stringify({ surveys })
       });
-      if (!res.ok) return null;
+      if (!res || !res.ok) return null;
       return await res.json();
     } catch {
       return null;

@@ -84,6 +84,7 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
   const [detectedLanguage, setDetectedLanguage] = useState<string | null>(null);
   const [speechError, setSpeechError] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
+  const watchdogTimer = useRef<any>(null);
 
   // Live AI NLP prediction state
   const [nlpPrediction, setNlpPrediction] = useState<{
@@ -137,6 +138,11 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
     setIsListening(false);
     setIsSpeechActive(false);
 
+    if (watchdogTimer.current) {
+      clearTimeout(watchdogTimer.current);
+      watchdogTimer.current = null;
+    }
+
     const rec = recognitionRef.current;
     recognitionRef.current = null;
 
@@ -166,7 +172,7 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
 
     setTimeout(() => {
       isStoppingRef.current = false;
-    }, 200);
+    }, 150);
   };
 
   // Start Voice Speech Recognition
@@ -262,20 +268,34 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
           return;
         }
         if (err.error === 'network') {
-          setSpeechError("Voice recognition connection error. You can continue speaking or use the instant voice presets below.");
+          setSpeechError("Speech recognition network notice: Speak clearly or test instantly using the 1-click voice presets below.");
+          stopVoiceRecording();
           return;
         }
+        stopVoiceRecording();
       };
 
       recognition.onend = () => {
         setIsListening(false);
         isListeningRef.current = false;
         setIsSpeechActive(false);
+        if (watchdogTimer.current) {
+          clearTimeout(watchdogTimer.current);
+          watchdogTimer.current = null;
+        }
       };
 
       recognitionRef.current = recognition;
       isListeningRef.current = true;
       setIsListening(true);
+
+      // Auto stop watchdog after 30 seconds
+      watchdogTimer.current = setTimeout(() => {
+        if (isListeningRef.current) {
+          stopVoiceRecording();
+        }
+      }, 30000);
+
       recognition.start();
     } catch (e: any) {
       console.error("SpeechRecognition start error:", e);
@@ -290,6 +310,11 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
       label: 'हिन्दी (Hindi)',
       title: 'प्राथमिक शाला के पास खराब हैंडपंप',
       desc: 'हमारी ग्राम पंचायत में प्राथमिक स्कूल के पास का हैंडपंप पिछले 10 दिनों से खराब है, इसमें से गंदा और जंग लगा पानी आ रहा है। बच्चे और शिक्षक पानी नहीं पी पा रहे हैं।'
+    },
+    {
+      label: 'ગુજરાતી (Gujarati)',
+      title: 'વોર્ડ 3 માં પીવાના પાણીની પાઈપલાઈનમાં લીકેજ',
+      desc: 'ગામના વોર્ડ નંબર 3 માં પીવાના પાણીની મુખ્ય પાઈપલાઈન તૂટી ગઈ છે અને શેરીમાં ગંદુ પાણી ભરાઈ ગયું છે. તાત્કાલિક સમારકામ કરવા વિનંતી.'
     },
     {
       label: 'मराठी (Marathi)',

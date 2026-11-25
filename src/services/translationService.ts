@@ -896,8 +896,14 @@ export const PHRASE_DICTIONARY: Record<string, Record<SupportedLanguage, string>
   }
 };
 
+// Pre-computed lowercase map for O(1) case-insensitive lookups with zero heap thrashing
+const LOWERCASE_PHRASE_MAP = new Map<string, Record<SupportedLanguage, string>>();
+for (const [key, value] of Object.entries(PHRASE_DICTIONARY)) {
+  LOWERCASE_PHRASE_MAP.set(key.toLowerCase(), value);
+}
+
 /**
- * Clean segment translator: translates complete phrases without substring mangling
+ * Fast O(1) dictionary translator: instant exact and case-insensitive phrase lookup without substring mangling
  */
 export function translateString(text: string, targetLang: SupportedLanguage): string {
   if (!text || typeof text !== 'string' || targetLang === 'en') {
@@ -907,28 +913,19 @@ export function translateString(text: string, targetLang: SupportedLanguage): st
   const trimmed = text.trim();
   if (!trimmed) return text;
 
-  // 1. Direct exact match in phrase dictionary
-  if (PHRASE_DICTIONARY[trimmed] && PHRASE_DICTIONARY[trimmed][targetLang]) {
-    return text.replace(trimmed, PHRASE_DICTIONARY[trimmed][targetLang]);
+  // 1. Direct O(1) exact match in phrase dictionary
+  const exact = PHRASE_DICTIONARY[trimmed];
+  if (exact && exact[targetLang]) {
+    return text.replace(trimmed, exact[targetLang]);
   }
 
-  // 2. Case-insensitive exact match
-  const lower = trimmed.toLowerCase();
-  for (const [phrase, transMap] of Object.entries(PHRASE_DICTIONARY)) {
-    if (phrase.toLowerCase() === lower && transMap[targetLang]) {
-      return text.replace(trimmed, transMap[targetLang]);
-    }
+  // 2. Direct O(1) case-insensitive match
+  const lowerMatch = LOWERCASE_PHRASE_MAP.get(trimmed.toLowerCase());
+  if (lowerMatch && lowerMatch[targetLang]) {
+    return text.replace(trimmed, lowerMatch[targetLang]);
   }
 
-  // 3. Multi-word phrase containment match (only on complete sub-phrases > 3 chars)
-  let result = text;
-  for (const [phrase, transMap] of Object.entries(PHRASE_DICTIONARY)) {
-    if (phrase.length > 5 && transMap[targetLang] && result.includes(phrase)) {
-      result = result.split(phrase).join(transMap[targetLang]);
-    }
-  }
-
-  return result;
+  return text;
 }
 
 /**
