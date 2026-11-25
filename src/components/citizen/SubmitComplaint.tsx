@@ -21,6 +21,7 @@ import {
   Eye,
   Mic,
   MicOff,
+  Square,
   Languages,
   Volume2,
   Globe,
@@ -72,10 +73,9 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
   // Voice-to-Text & Language Identification State
   const [isListening, setIsListening] = useState(false);
   const isListeningRef = useRef(false);
+  const [isSpeechActive, setIsSpeechActive] = useState(false);
   const initialTextBeforeRecord = useRef('');
   const micStreamRef = useRef<MediaStream | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const [audioVolume, setAudioVolume] = useState<number>(0);
   const [voiceLang, setVoiceLang] = useState<string>(() => {
     const found = SUPPORTED_LANGUAGES.find(l => l.code === language);
     return found ? found.speechCode : 'hi-IN';
@@ -124,71 +124,65 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
     }
   }, [description]);
 
-  // Audio meter for live feedback
-  const setupAudioMeter = (stream: MediaStream) => {
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const audioCtx = new AudioCtx();
-      audioContextRef.current = audioCtx;
-      const source = audioCtx.createMediaStreamSource(stream);
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 128;
-      source.connect(analyser);
+  // Stop Voice Speech Recognition cleanly and immediately
+  const stopVoiceRecording = () => {
+    isListeningRef.current = false;
+    setIsListening(false);
+    setIsSpeechActive(false);
 
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-      const updateMeter = () => {
-        if (!isListeningRef.current) return;
-        analyser.getByteFrequencyData(dataArray);
-        let sum = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-          sum += dataArray[i];
-        }
-        const avg = sum / dataArray.length;
-        setAudioVolume(Math.min(100, Math.round((avg / 128) * 100)));
-        requestAnimationFrame(updateMeter);
-      };
-      requestAnimationFrame(updateMeter);
-    } catch (err) {
-      console.warn("Audio meter init error:", err);
+    if (recognitionRef.current) {
+      try {
+        const rec = recognitionRef.current;
+        recognitionRef.current = null;
+        rec.onstart = null;
+        rec.onresult = null;
+        rec.onerror = null;
+        rec.onend = null;
+        rec.onspeechstart = null;
+        rec.onspeechend = null;
+        rec.abort(); // Immediately kills audio capture and speech recognition pipeline
+      } catch (e) {
+        console.warn("Speech recognition abort error:", e);
+      }
+    }
+
+    if (micStreamRef.current) {
+      try {
+        micStreamRef.current.getTracks().forEach(track => {
+          track.stop();
+          track.enabled = false;
+        });
+      } catch (e) {}
+      micStreamRef.current = null;
     }
   };
 
-  // Voice Speech Recognition functions
-  const startVoiceRecording = async () => {
+  // Start Voice Speech Recognition
+  const startVoiceRecording = () => {
     setSpeechError(null);
-    setAudioVolume(0);
+    setIsSpeechActive(false);
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setSpeechError("Speech recognition API is not supported in this browser. Please use Chrome, Edge, or mobile browser.");
+    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRec) {
+      setSpeechError("Speech recognition API is not supported in this browser. Please use Chrome, Edge, or mobile browser, or test using the instant voice presets below.");
       return;
     }
 
-    // Step 1: Explicitly request microphone stream to ensure browser prompt and audio hardware activation
-    try {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        micStreamRef.current = stream;
-        setupAudioMeter(stream);
-      }
-    } catch (permErr: any) {
-      console.warn("Microphone permission check:", permErr);
-      if (permErr.name === 'NotAllowedError' || permErr.name === 'PermissionDeniedError') {
-        setSpeechError("Microphone permission was blocked. Please click the lock icon in your address bar and allow Microphone access.");
-        return;
-      }
+    // If a session was already active, stop it cleanly first
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.onend = null;
+        recognitionRef.current.abort();
+      } catch (e) {}
+      recognitionRef.current = null;
     }
 
     try {
-      if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch {}
-      }
-
-      const recognition = new SpeechRecognition();
+      const recognition = new SpeechRec();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = voiceLang || 'hi-IN';
+      recognition.maxAlternatives = 1;
 
       initialTextBeforeRecord.current = description.trim();
       let finalAccumulated = '';
@@ -196,6 +190,15 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
       recognition.onstart = () => {
         setIsListening(true);
         isListeningRef.current = true;
+        setSpeechError(null);
+      };
+
+      recognition.onspeechstart = () => {
+        setIsSpeechActive(true);
+      };
+
+      recognition.onspeechend = () => {
+        setIsSpeechActive(false);
       };
 
       recognition.onresult = (event: any) => {
@@ -235,10 +238,11 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
         console.warn('Speech recognition error event:', err.error);
         if (err.error === 'no-speech') {
           // Natural pause in speaking, do not terminate session
+          setIsSpeechActive(false);
           return;
         }
-        if (err.error === 'not-allowed') {
-          setSpeechError("Microphone permission was blocked in browser. Please permit mic access in your browser settings.");
+        if (err.error === 'not-allowed' || err.error === 'service-not-allowed') {
+          setSpeechError("Microphone permission was denied. Please allow microphone access in your browser address bar.");
           stopVoiceRecording();
           return;
         }
@@ -248,7 +252,11 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
           return;
         }
         if (err.error === 'network') {
-          setSpeechError("Voice server connection timeout. You can continue speaking or test using presets.");
+          setSpeechError("Voice recognition connection notice: speak clearly or use the instant voice presets below.");
+          return;
+        }
+        if (err.error === 'aborted') {
+          return;
         }
       };
 
@@ -259,40 +267,25 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
           } catch {
             setIsListening(false);
             isListeningRef.current = false;
+            setIsSpeechActive(false);
           }
         } else {
           setIsListening(false);
+          setIsSpeechActive(false);
         }
       };
 
       recognitionRef.current = recognition;
       recognition.start();
+      // Optimistically flip state so UI immediately responds to click
+      setIsListening(true);
+      isListeningRef.current = true;
     } catch (e: any) {
       console.error("SpeechRecognition start error:", e);
       setIsListening(false);
       isListeningRef.current = false;
-      setSpeechError("Unable to activate speech recognition. Please verify microphone permission in your browser.");
-    }
-  };
-
-  const stopVoiceRecording = () => {
-    isListeningRef.current = false;
-    setIsListening(false);
-    setAudioVolume(0);
-
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch {}
-      recognitionRef.current = null;
-    }
-
-    if (micStreamRef.current) {
-      micStreamRef.current.getTracks().forEach(track => track.stop());
-      micStreamRef.current = null;
-    }
-
-    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-      try { audioContextRef.current.close(); } catch {}
-      audioContextRef.current = null;
+      setIsSpeechActive(false);
+      setSpeechError("Unable to activate speech recognition. Please verify microphone permission or use the instant voice presets below.");
     }
   };
 
@@ -435,6 +428,7 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
 
   useEffect(() => {
     return () => {
+      stopVoiceRecording();
       if (cameraStream.current) {
         cameraStream.current.getTracks().forEach(track => track.stop());
       }
@@ -669,17 +663,25 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
                 {/* Mic Action Button */}
                 <button
                   type="button"
-                  onClick={isListening ? stopVoiceRecording : startVoiceRecording}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition shadow-xs cursor-pointer ${
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (isListening) {
+                      stopVoiceRecording();
+                    } else {
+                      startVoiceRecording();
+                    }
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition shadow-xs cursor-pointer select-none ${
                     isListening
-                      ? 'bg-rose-600 hover:bg-rose-700 text-white animate-pulse ring-2 ring-rose-400'
+                      ? 'bg-rose-600 hover:bg-rose-700 text-white ring-2 ring-rose-400 ring-offset-1'
                       : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                   }`}
                   title={isListening ? 'Click to stop listening' : 'Click and speak in your language'}
                 >
                   {isListening ? (
                     <>
-                      <MicOff className="w-3.5 h-3.5 animate-bounce" />
+                      <Square className="w-3.5 h-3.5 fill-white" />
                       <span>Listening... Click to Stop</span>
                     </>
                   ) : (
@@ -690,15 +692,15 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
                   )}
                 </button>
 
-                {/* Live sound wave & audio level indicator */}
+                {/* Live sound wave indicator */}
                 {isListening && (
-                  <div className="flex items-center gap-2 bg-emerald-100/90 px-3 py-1.5 rounded-lg border border-emerald-300 text-xs font-semibold text-emerald-900 shadow-2xs">
+                  <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-300 text-xs font-semibold text-emerald-900 shadow-2xs animate-in fade-in duration-150">
                     <div className="flex items-end gap-1 h-3.5">
-                      <span className="w-1 bg-emerald-600 rounded-full transition-all duration-75" style={{ height: `${Math.max(25, audioVolume * 0.9)}%` }}></span>
-                      <span className="w-1.5 bg-emerald-600 rounded-full transition-all duration-75" style={{ height: `${Math.max(45, audioVolume * 1.3)}%` }}></span>
-                      <span className="w-1 bg-emerald-600 rounded-full transition-all duration-75" style={{ height: `${Math.max(30, audioVolume * 0.8)}%` }}></span>
+                      <span className={`w-1 bg-emerald-600 rounded-full transition-all duration-150 ${isSpeechActive ? 'h-3 animate-pulse' : 'h-1.5'}`} />
+                      <span className={`w-1.5 bg-emerald-600 rounded-full transition-all duration-150 ${isSpeechActive ? 'h-3.5 animate-bounce' : 'h-2'}`} />
+                      <span className={`w-1 bg-emerald-600 rounded-full transition-all duration-150 ${isSpeechActive ? 'h-2.5 animate-pulse' : 'h-1.5'}`} />
                     </div>
-                    <span>{audioVolume > 10 ? 'Receiving Voice Audio...' : 'Microphone Ready — Speak Now'}</span>
+                    <span>{isSpeechActive ? 'Listening to speech...' : 'Microphone ready — speak now'}</span>
                   </div>
                 )}
               </div>
