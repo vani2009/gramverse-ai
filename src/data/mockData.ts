@@ -868,6 +868,26 @@ export const MOCK_HOUSEHOLDS: Household[] = [
     surveyedAt: '2026-11-15T15:20:00Z',
     volunteerName: 'Pooja Verma',
     location: { lat: 23.0730, lng: 76.8330 }
+  },
+  {
+    id: 'hh_006',
+    villageId: 'vil_kothri',
+    villageName: 'Kothri Kalan',
+    headName: 'Vikram Singh Rajput',
+    aadhaarLastFour: '7823',
+    familySize: 4,
+    annualIncome: 92000,
+    casteCategory: 'General (EWS)',
+    rationCardType: 'BPL',
+    landHoldingAcres: 1.2,
+    drinkingWaterSource: 'Public Handpump',
+    hasSanitationToilet: true,
+    hasElectricity: true,
+    isKisanRegistered: true,
+    matchedSchemeIds: ['sch_pmkisan', 'sch_ayushman', 'sch_mgnrega'],
+    surveyedAt: '2026-11-15T12:00:00Z',
+    volunteerName: 'Pooja Verma',
+    location: { lat: 23.0735, lng: 76.8300 }
   }
 ];
 

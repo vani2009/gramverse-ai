@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { UserRole, Village } from '../../types';
 import { storageService } from '../../services/storageService';
 import { MOCK_USERS } from '../../data/mockData';
+import { useLanguage } from '../../context/LanguageContext';
+import { SupportedLanguage } from '../../services/translationService';
 import { 
   Building2, 
   Landmark, 
@@ -14,7 +16,8 @@ import {
   Bell, 
   Layers, 
   ShieldCheck,
-  ChevronDown
+  ChevronDown,
+  Globe
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -36,6 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [isOnline, setIsOnline] = useState(storageService.isOnline());
   const [offlinePendingCount, setOfflinePendingCount] = useState(0);
+  const { language, setLanguage, languageOptions, t } = useLanguage();
   const villages = storageService.getVillages();
   const currentUser = MOCK_USERS[currentRole];
 
@@ -86,72 +90,89 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="flex items-center bg-slate-800 p-0.5 rounded-xl border border-slate-700">
-          <button
-            onClick={() => {
-              onRoleChange('admin');
-              onTabChange('dashboard');
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition ${
-              currentRole === 'admin'
-                ? 'bg-indigo-600 text-white shadow-xs font-semibold'
-                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" />
-            <span>Admin</span>
-          </button>
+            <button
+              onClick={() => {
+                onRoleChange('admin');
+                onTabChange('dashboard');
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition ${
+                currentRole === 'admin'
+                  ? 'bg-indigo-600 text-white shadow-xs font-semibold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>{t('role.admin', 'Admin')}</span>
+            </button>
 
-          <button
-            onClick={() => {
-              onRoleChange('panchayat');
-              onTabChange('dashboard');
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition ${
-              currentRole === 'panchayat'
-                ? 'bg-emerald-600 text-white shadow-xs font-semibold'
-                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-            }`}
-          >
-            <Landmark className="w-3.5 h-3.5" />
-            <span>Panchayat</span>
-          </button>
+            <button
+              onClick={() => {
+                onRoleChange('panchayat');
+                onTabChange('dashboard');
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition ${
+                currentRole === 'panchayat'
+                  ? 'bg-emerald-600 text-white shadow-xs font-semibold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              <Landmark className="w-3.5 h-3.5" />
+              <span>{t('role.panchayat', 'Panchayat')}</span>
+            </button>
 
-          <button
-            onClick={() => {
-              onRoleChange('citizen');
-              onTabChange('home');
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition ${
-              currentRole === 'citizen'
-                ? 'bg-sky-600 text-white shadow-xs font-semibold'
-                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-            }`}
-          >
-            <User className="w-3.5 h-3.5" />
-            <span>Citizen</span>
-          </button>
+            <button
+              onClick={() => {
+                onRoleChange('citizen');
+                onTabChange('home');
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition ${
+                currentRole === 'citizen'
+                  ? 'bg-sky-600 text-white shadow-xs font-semibold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>{t('role.citizen', 'Citizen')}</span>
+            </button>
 
-          <button
-            onClick={() => {
-              onRoleChange('survey');
-              onTabChange('home');
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition relative ${
-              currentRole === 'survey'
-                ? 'bg-amber-600 text-white shadow-xs font-semibold'
-                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-            }`}
-          >
-            <ClipboardList className="w-3.5 h-3.5" />
-            <span>Survey PWA</span>
-            {offlinePendingCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                {offlinePendingCount}
-              </span>
-            )}
-          </button>
+            <button
+              onClick={() => {
+                onRoleChange('survey');
+                onTabChange('home');
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition relative ${
+                currentRole === 'survey'
+                  ? 'bg-amber-600 text-white shadow-xs font-semibold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              <ClipboardList className="w-3.5 h-3.5" />
+              <span>{t('role.survey', 'Survey PWA')}</span>
+              {offlinePendingCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                  {offlinePendingCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Indian Language Switcher Dropdown */}
+          <div className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1 text-xs">
+            <Globe className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <select
+              value={language}
+              onChange={e => setLanguage(e.target.value as SupportedLanguage)}
+              className="bg-transparent text-slate-200 font-semibold outline-none cursor-pointer text-xs"
+              title="Translate Application to Indian Languages (भारतीय भाषा चुनें)"
+            >
+              {languageOptions.map(opt => (
+                <option key={opt.code} value={opt.code} className="bg-slate-900 text-white">
+                  {opt.nativeName} ({opt.name})
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
 
         {/* Network Toggle and Reset button */}
         <div className="flex items-center gap-2">

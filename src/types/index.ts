@@ -80,6 +80,8 @@ export interface Complaint {
   panchayatRemarks?: string;
 }
 
+export type CasteCategory = 'General' | 'General (EWS)' | 'OBC' | 'SC' | 'ST';
+
 export interface Household {
   id: string;
   villageId: string;
@@ -88,7 +90,7 @@ export interface Household {
   aadhaarLastFour: string;
   familySize: number;
   annualIncome: number;
-  casteCategory: 'General' | 'OBC' | 'SC' | 'ST';
+  casteCategory: CasteCategory;
   rationCardType: 'BPL' | 'AAY' | 'APL' | 'None';
   landHoldingAcres: number;
   drinkingWaterSource: 'Tap Connection' | 'Public Handpump' | 'Open Well' | 'Tanker';
@@ -132,7 +134,7 @@ export interface Scheme {
   eligibility: {
     maxIncome?: number;
     maxLandAcres?: number;
-    allowedCaste?: ('General' | 'OBC' | 'SC' | 'ST')[];
+    allowedCaste?: CasteCategory[];
     requiredRationCard?: ('BPL' | 'AAY' | 'APL')[];
     requiresNoToilet?: boolean;
     requiresFarming?: boolean;

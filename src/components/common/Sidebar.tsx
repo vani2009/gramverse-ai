@@ -1,5 +1,6 @@
 import React from 'react';
 import { UserRole } from '../../types';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   Building2,
   BarChart3,
@@ -29,32 +30,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   onTabChange
 }) => {
+  const { t } = useLanguage();
+
   const getNavItems = () => {
     switch (currentRole) {
       case 'admin':
         return [
-          { id: 'dashboard', label: 'Admin Overview', icon: <Building2 className="w-4 h-4" /> },
-          { id: 'analytics', label: 'Village Comparison', icon: <BarChart3 className="w-4 h-4" /> },
-          { id: 'reports', label: 'Reports & Exports', icon: <FileSpreadsheet className="w-4 h-4" /> },
+          { id: 'dashboard', label: t('nav.dashboard', 'Admin Overview'), icon: <Building2 className="w-4 h-4" /> },
+          { id: 'analytics', label: t('nav.analytics', 'Village Comparison'), icon: <BarChart3 className="w-4 h-4" /> },
+          { id: 'reports', label: t('nav.reports', 'Reports & Exports'), icon: <FileSpreadsheet className="w-4 h-4" /> },
         ];
       case 'panchayat':
         return [
-          { id: 'dashboard', label: 'Dashboard & GIS Map', icon: <LayoutDashboard className="w-4 h-4" /> },
-          { id: 'complaints', label: 'Grievance AI Review', icon: <AlertCircle className="w-4 h-4" /> },
-          { id: 'households', label: 'Household Registry', icon: <Users className="w-4 h-4" /> },
-          { id: 'planner', label: 'Development Planner', icon: <Calculator className="w-4 h-4" /> },
+          { id: 'dashboard', label: t('nav.dashboard', 'Dashboard & GIS Map'), icon: <LayoutDashboard className="w-4 h-4" /> },
+          { id: 'complaints', label: t('nav.complaints', 'Grievance AI Review'), icon: <AlertCircle className="w-4 h-4" /> },
+          { id: 'households', label: t('nav.registry', 'Household Registry'), icon: <Users className="w-4 h-4" /> },
+          { id: 'planner', label: t('nav.planner', 'Development Planner'), icon: <Calculator className="w-4 h-4" /> },
         ];
       case 'citizen':
         return [
-          { id: 'home', label: 'Citizen Home', icon: <Home className="w-4 h-4" /> },
-          { id: 'submit', label: 'Lodge Grievance', icon: <FilePlus className="w-4 h-4" /> },
-          { id: 'schemes', label: 'Scheme Explorer', icon: <Compass className="w-4 h-4" /> },
-          { id: 'tracking', label: 'Track Complaints', icon: <Clock className="w-4 h-4" /> },
+          { id: 'home', label: t('nav.home', 'Citizen Home'), icon: <Home className="w-4 h-4" /> },
+          { id: 'submit', label: t('nav.lodge', 'Lodge Grievance'), icon: <FilePlus className="w-4 h-4" /> },
+          { id: 'schemes', label: t('nav.schemes', 'Scheme Explorer'), icon: <Compass className="w-4 h-4" /> },
+          { id: 'tracking', label: t('nav.track', 'Track Complaints'), icon: <Clock className="w-4 h-4" /> },
           { id: 'chatbot', label: 'GramBot AI (RAG)', icon: <Bot className="w-4 h-4" /> },
         ];
       case 'survey':
         return [
-          { id: 'home', label: 'Survey PWA Forms', icon: <Smartphone className="w-4 h-4" /> },
+          { id: 'home', label: t('nav.survey_home', 'Survey PWA Forms'), icon: <Smartphone className="w-4 h-4" /> },
           { id: 'queue', label: 'Offline Sync Queue', icon: <CloudUpload className="w-4 h-4" /> },
         ];
     }

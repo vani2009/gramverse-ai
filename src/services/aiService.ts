@@ -1,14 +1,86 @@
 import { ComplaintCategory, CvDetection, Household, Scheme } from '../types';
 import { MOCK_SCHEMES } from '../data/mockData';
 
-// Keywords dictionary for TF-IDF / Logistic Regression simulation
+// Keywords dictionary for TF-IDF / Logistic Regression simulation with Indian Multilingual Support
 const CATEGORY_KEYWORDS: Record<ComplaintCategory, string[]> = {
-  Road: ['road', 'pothole', 'street', 'asphalt', 'tar', 'bridge', 'culvert', 'muddy path', 'bus', 'tractor', 'traffic', 'crater', 'divider'],
-  Water: ['water', 'handpump', 'tap', 'pipeline', 'tank', 'well', 'drinking water', 'boring', 'motor', 'supply', 'turbid', 'chlorine', 'leakage', 'jjm'],
-  Sanitation: ['garbage', 'drain', 'drainage', 'gutter', 'waste', 'smell', 'toilet', 'sewage', 'dump', 'trash', 'overflow', 'plastic', 'filth'],
-  Electricity: ['electric', 'electricity', 'light', 'streetlight', 'solar', 'pole', 'wire', 'transformer', 'power', 'blackout', 'spark', 'current', 'meter'],
-  School: ['school', 'teacher', 'desk', 'blackboard', 'classroom', 'student', 'midday meal', 'boundary wall', 'playground', 'books', 'education'],
-  Health: ['health', 'hospital', 'dispensary', 'doctor', 'nurse', 'medicine', 'anm', 'asha', 'clinic', 'vaccine', 'injection', 'illness', 'emergency']
+  Road: [
+    'road', 'pothole', 'street', 'asphalt', 'tar', 'bridge', 'culvert', 'muddy path', 'bus', 'tractor', 'traffic', 'crater', 'divider',
+    'सड़क', 'सडक', 'रास्ता', 'खड्डा', 'खड्डे', 'पुलिया', 'कीचड़', 'डामर',
+    'रस्ता', 'खड्डे', 'डांबर', 'वाहतूक', 'रास्ता',
+    'রাস্তা', 'পথ', 'খানাখন্দ',
+    'రోడ్డు', 'రహదారి', 'గుంతలు',
+    'சாலை', 'பாதை', 'குழி',
+    'રસ્તો', 'માર્ગ', 'ખાડા',
+    'ರಸ್ತೆ', 'ಗುಂಡಿಗಳು',
+    'റോഡ്', 'കുഴികൾ',
+    'ਸੜਕ', 'ਖੱਡੇ',
+    'ରାସ୍ତା', 'ଖାଲ'
+  ],
+  Water: [
+    'water', 'handpump', 'tap', 'pipeline', 'tank', 'well', 'drinking water', 'boring', 'motor', 'supply', 'turbid', 'chlorine', 'leakage', 'jjm',
+    'पानी', 'जल', 'हैंडपंप', 'नल', 'पाइप', 'टंकी', 'बोरिंग', 'पेयजल', 'कुआं', 'सप्लाई',
+    'पाणी', 'हातपंप', 'नळ', 'पाईपलाईन', 'टाकी', 'विहीर', 'पिण्याचे पाणी',
+    'জল', 'পানীয় জল', 'টিউবওয়েল', 'পাম্প', 'পাইপলাইন',
+    'నీరు', 'తాగునీరు', 'చేతిపంపు', 'పైపులైన్', 'ట్యాంక్',
+    'தண்ணீர்', 'குடிநீர்', 'கைபம்பு', 'குழாய்',
+    'પાણી', 'પીવાનું પાણી', 'હેન્ડપંપ', 'નળ', 'ટાંકી',
+    'ನೀರು', 'ಕುಡಿಯುವ ನೀರು', 'ಕೈಪಂಪ್', 'ಕೊಳವೆ',
+    'വെള്ളം', 'കുടിവെള്ളം', 'പമ്പ്', 'പൈപ്പ്',
+    'ਪਾਣੀ', 'ਪੀਣ ਵਾਲਾ ਪਾਣੀ', 'ਹੈਂਡਪੰਪ', 'ਨਲਕਾ',
+    'ପାଣି', 'ପାନୀୟ ଜଳ', 'ନଳକୂଅ', 'ପାଇପ୍'
+  ],
+  Sanitation: [
+    'garbage', 'drain', 'drainage', 'gutter', 'waste', 'smell', 'toilet', 'sewage', 'dump', 'trash', 'overflow', 'plastic', 'filth',
+    'कचरा', 'नाली', 'गटर', 'गंदगी', 'सफाई', 'बदबू', 'शौचालय', 'कूड़ा', 'सीवेज',
+    'कचरा', 'सांडपाणी', 'गटार', 'घाण', 'शौचालय', 'स्वच्छता',
+    'আবর্জনা', 'নর্দমা', 'ময়লা', 'শৌচাগার', 'বর্জ্য',
+    'చెత్త', 'మురుగు', 'కాలువ', 'మరుగుదొడ్డి', 'పారిశుధ్యం',
+    'குப்பை', 'சாக்கடை', 'கழிவுநீர்', 'கழிப்பறை',
+    'કચરો', 'ગટર', 'ગંદકી', 'શૌચાલય',
+    'ಕಸ', 'ಚರಂಡಿ', 'ತ್ಯಾಜ್ಯ', 'ಶೌಚಾಲಯ',
+    'മാലിന്യം', 'ഓട', 'ശുചിമുറി',
+    'ਕੂੜਾ', 'ਨਾਲੀ', 'ਗੰਦਗੀ', 'ਟਾਇਲਟ',
+    'ଆବର୍ଜନା', 'ନାଳ', 'ଅପରିଷ୍କାର', 'ଶୌଚାଳୟ'
+  ],
+  Electricity: [
+    'electric', 'electricity', 'light', 'streetlight', 'solar', 'pole', 'wire', 'transformer', 'power', 'blackout', 'spark', 'current', 'meter',
+    'बिजली', 'लाइट', 'स्ट्रीटलाइट', 'सोलर', 'खंभा', 'तार', 'ट्रांसफार्मर', 'करंट', 'अंधेरा',
+    'वीज', 'पथदिवा', 'सौर', 'खांब', 'वायर', 'ट्रान्सफॉर्मर',
+    'বিদ্যুৎ', 'বাতি', 'আলো', 'ট্রান্সফরমার', 'তার',
+    'విద్యుత్', 'లైట్లు', 'స్తంభం', 'ట్రాన్స్‌ఫార్మర్',
+    'மின்சாரம்', 'விளக்கு', 'மின் கம்பம்',
+    'વીજળી', 'લાઈટ', 'થાંભલો', 'ટ્રાન્સફોર્મર',
+    'ವಿದ್ಯುತ್', 'ಬೆಳಕು', 'ಕಂಬ',
+    'വൈദ്യുതി', 'വെളിച്ചം', 'പോസ്റ്റ്',
+    'ਬਿਜਲੀ', 'ਲਾਈਟ', 'ਖੰਭਾ',
+    'ବିଦ୍ୟୁତ', 'ଆଲୋକ', 'ଖୁଣ୍ଟ'
+  ],
+  School: [
+    'school', 'teacher', 'desk', 'blackboard', 'classroom', 'student', 'midday meal', 'boundary wall', 'playground', 'books', 'education',
+    'स्कूल', 'विद्यालय', 'शाला', 'शिक्षक', 'कक्षा', 'मास्टर', 'छात्र', 'मध्याह्न भोजन',
+    'शाळा', 'शिक्षक', 'वर्गखोली', 'विद्यार्थी',
+    'বিদ্যালয়', 'স্কুল', 'শিক্ষক', 'শ্রেণিকক্ষ',
+    'పాఠశాల', 'బడి', 'ఉపాధ్యాయుడు', 'విద్యార్థులు',
+    'பள்ளி', 'ஆசிரியர்', 'வகுப்பறை', 'மாணவர்கள்',
+    'શાળા', 'શિક્ષક', 'વર્ગખંડ', 'વિદ્યાર્થીઓ',
+    'ಶಾಲೆ', 'ಶಿಕ್ಷಕ', 'ತರಗತಿ',
+    'സ്കൂൾ', 'അധ്യാപകൻ', 'ക്ലാസ്സ്',
+    'ਸਕੂਲ', 'ਅਧਿਆਪਕ', 'ਜਮਾਤ',
+    'ବିଦ୍ୟାଳୟ', 'ଶିକ୍ଷକ', 'ଶ୍ରେଣୀଗୃହ'
+  ],
+  Health: [
+    'health', 'hospital', 'dispensary', 'doctor', 'nurse', 'medicine', 'anm', 'asha', 'clinic', 'vaccine', 'injection', 'illness', 'emergency',
+    'अस्पताल', 'स्वास्थ्य', 'डॉक्टर', 'दवा', 'दवाई', 'उपस्वास्थ्य केंद्र', 'टीका', 'आशा',
+    'रुग्णालय', 'आरोग्य', 'दवाखाना', 'औषध', 'लस',
+    'হাসপাতাল', 'স্বাস্থ্য', 'ডাক্তার', 'ওষুধ',
+    'ఆసుపత్రి', 'ఆరోగ్యం', 'వైద్యుడు', 'మందులు',
+    'மருத்துவமனை', 'சுகாதாரம்', 'மருத்துவர்', 'மருந்து',
+    'દવાખાનું', 'હોસ્પિટલ', 'આરોગ્ય', 'ડૉક્ટર', 'દવા',
+    'ಆಸ್ಪತ್ರೆ', 'ಆರೋಗ್ಯ', 'ವೈದ್ಯರು', 'ಔಷಧಿ',
+    'ആശുപത്രി', 'ആരോഗ്യം', 'ഡോക്ടർ', 'മരുന്ന്',
+    'ਹਸਪਤਾਲ', 'ਸਿਹਤ', 'ਡਾਕਟਰ', 'ਦਵਾਈ',
+    'ଡାକ୍ତରଖାନା', 'ସ୍ୱାସ୍ଥ୍ୟ', 'ଡାକ୍ତର', 'ଔଷଧ'
+  ]
 };
 
 export class AiService {

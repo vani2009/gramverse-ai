@@ -3,6 +3,7 @@ import { UserRole, Village, Complaint } from './types';
 import { storageService } from './services/storageService';
 import { Navbar } from './components/common/Navbar';
 import { Sidebar } from './components/common/Sidebar';
+import { LanguageProvider } from './context/LanguageContext';
 
 // Admin
 import { AdminDashboard } from './components/admin/AdminDashboard';
@@ -24,6 +25,14 @@ import { GramBotChat } from './components/ai/GramBotChat';
 import { SurveyPwa } from './components/survey/SurveyPwa';
 
 export function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
+  );
+}
+
+export function AppContent() {
   const [currentRole, setCurrentRole] = useState<UserRole>(storageService.getCurrentRole());
   const [selectedVillage, setSelectedVillage] = useState<Village>(
     storageService.getVillages()[0]

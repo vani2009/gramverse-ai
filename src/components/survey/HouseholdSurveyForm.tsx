@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Household, Village } from '../../types';
+import { CasteCategory, Household, Village } from '../../types';
 import { storageService } from '../../services/storageService';
 import { AiService } from '../../services/aiService';
 import {
@@ -27,7 +27,7 @@ export const HouseholdSurveyForm: React.FC<HouseholdSurveyFormProps> = ({ villag
   const [aadhaarLastFour, setAadhaarLastFour] = useState('');
   const [familySize, setFamilySize] = useState(4);
   const [annualIncome, setAnnualIncome] = useState(85000);
-  const [casteCategory, setCasteCategory] = useState<'General' | 'OBC' | 'SC' | 'ST'>('OBC');
+  const [casteCategory, setCasteCategory] = useState<CasteCategory>('OBC');
   const [rationCardType, setRationCardType] = useState<'BPL' | 'AAY' | 'APL' | 'None'>('BPL');
   const [landHoldingAcres, setLandHoldingAcres] = useState(1.5);
   const [drinkingWaterSource, setDrinkingWaterSource] = useState<'Tap Connection' | 'Public Handpump' | 'Open Well' | 'Tanker'>('Public Handpump');
@@ -163,10 +163,11 @@ export const HouseholdSurveyForm: React.FC<HouseholdSurveyFormProps> = ({ villag
             <label className="block text-slate-700 font-semibold mb-1">Social Category</label>
             <select
               value={casteCategory}
-              onChange={e => setCasteCategory(e.target.value as any)}
+              onChange={e => setCasteCategory(e.target.value as CasteCategory)}
               className="w-full p-2.5 bg-white border border-slate-200 rounded-lg outline-hidden font-medium"
             >
               <option value="General">General</option>
+              <option value="General (EWS)">General (EWS)</option>
               <option value="OBC">OBC</option>
               <option value="SC">SC</option>
               <option value="ST">ST</option>

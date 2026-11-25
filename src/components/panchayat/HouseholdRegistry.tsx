@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Household, Scheme, Village } from '../../types';
 import { storageService } from '../../services/storageService';
 import { MOCK_SCHEMES } from '../../data/mockData';
+import { useLanguage } from '../../context/LanguageContext';
 import { Users, Search, Filter, CheckCircle2, XCircle, Droplets, Home, Sparkles } from 'lucide-react';
 
 interface HouseholdRegistryProps {
@@ -9,14 +10,17 @@ interface HouseholdRegistryProps {
 }
 
 export const HouseholdRegistry: React.FC<HouseholdRegistryProps> = ({ village }) => {
+  const { t } = useLanguage();
   const [households] = useState<Household[]>(storageService.getHouseholds());
   const [search, setSearch] = useState('');
   const [rationFilter, setRationFilter] = useState('all');
   const [waterFilter, setWaterFilter] = useState('all');
+  const [casteFilter, setCasteFilter] = useState('all');
 
   const filtered = households.filter(h => {
     if (rationFilter !== 'all' && h.rationCardType !== rationFilter) return false;
     if (waterFilter !== 'all' && h.drinkingWaterSource !== waterFilter) return false;
+    if (casteFilter !== 'all' && h.casteCategory !== casteFilter) return false;
     if (search) {
       const q = search.toLowerCase();
       return (
@@ -88,6 +92,19 @@ export const HouseholdRegistry: React.FC<HouseholdRegistryProps> = ({ village })
             <option value="Tap Connection">Tap Connection (JJM)</option>
             <option value="Public Handpump">Public Handpump</option>
             <option value="Open Well">Open Well</option>
+          </select>
+
+          <select
+            value={casteFilter}
+            onChange={e => setCasteFilter(e.target.value)}
+            className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 font-medium text-slate-700 outline-hidden"
+          >
+            <option value="all">{t('caste.all', 'All Castes')}</option>
+            <option value="General">{t('caste.general', 'General')}</option>
+            <option value="General (EWS)">{t('caste.general_ews', 'General (EWS)')}</option>
+            <option value="OBC">{t('caste.obc', 'OBC')}</option>
+            <option value="SC">{t('caste.sc', 'SC')}</option>
+            <option value="ST">{t('caste.st', 'ST')}</option>
           </select>
         </div>
       </div>
