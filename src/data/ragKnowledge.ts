@@ -12,11 +12,11 @@ export interface KnowledgeDocument {
 export const RAG_KNOWLEDGE_BASE: KnowledgeDocument[] = [
   {
     id: 'doc_gpdp_2024',
-    title: 'Shivpura Gram Panchayat Development Plan (GPDP) 2024-25',
-    sourceDoc: 'Panchayati Raj Dept, Govt of Rajasthan, Ref: GPDP-CHM-2024-SHIV',
+    title: 'Kothri Kalan Gram Panchayat Development Plan (GPDP) 2024-25',
+    sourceDoc: 'Panchayati Raj Dept, Govt of Madhya Pradesh, Ref: GPDP-ASH-2024-KOTHRI',
     category: 'development_plan',
     keywords: ['budget', 'expenditure', 'roads', 'priority', 'population', 'wards', 'finance', 'funds'],
-    content: 'Shivpura Gram Panchayat operates under Chomu Block with 9 wards and 568 households. Total sanctioned untied grant for 2024-25 is ₹48.5 Lakhs under 15th Finance Commission. Priority works sanctioned include CC road paving in Ward 2, replacement of damaged submersible pump in Ward 4, and retrofitting 24 solar streetlights.'
+    content: 'Kothri Kalan Gram Panchayat operates under Ashta Block, Sehore District with 11 wards and 590 households. Total sanctioned untied grant for 2024-25 is ₹52.0 Lakhs under 15th Finance Commission. Priority works sanctioned include CC road paving in Ward 2, replacement of damaged submersible pump in Ward 4, and retrofitting 24 solar streetlights.'
   },
   {
     id: 'doc_jjm_guidelines',
@@ -52,11 +52,11 @@ export const RAG_KNOWLEDGE_BASE: KnowledgeDocument[] = [
   },
   {
     id: 'doc_health_subcenter',
-    title: 'Shivpura Health & Wellness Sub-Center Service Log 2026',
-    sourceDoc: 'National Health Mission Rajasthan, District Health Society Record',
+    title: 'Kothri Kalan Health & Wellness Sub-Center Service Log 2026',
+    sourceDoc: 'National Health Mission Madhya Pradesh, District Health Society Sehore Record',
     category: 'village_records',
     keywords: ['health', 'clinic', 'vaccine', 'anm', 'doctor', 'medicine', 'sub-center', 'ayushman'],
-    content: 'The Shivpura Health Sub-Center is staffed by ANM Smt. Rekha Sharma and 2 Accredited Social Health Activists (ASHAs). Routine immunization runs every Thursday. Emergency medical kit, antenatal care tests, and generic fever/ORS/iron medications are stocked on site. Critical referrals are sent to Chomu CHC (14 km).'
+    content: 'The Kothri Kalan Health Sub-Center is staffed by ANM Smt. Sunita Devi and 2 Accredited Social Health Activists (ASHAs). Routine immunization runs every Thursday. Emergency medical kit, antenatal care tests, and generic fever/ORS/iron medications are stocked on site. Critical referrals are sent to Ashta Civil Hospital / CHC (12 km).'
   }
 ];
 
@@ -98,9 +98,9 @@ export function searchRagKnowledge(query: string): { answer: string; citations: 
   // Context-specific answer construction
   let answer = '';
   if (lowerQuery.includes('budget') || lowerQuery.includes('fund') || lowerQuery.includes('money') || lowerQuery.includes('plan')) {
-    answer = `Based on the official **Shivpura GPDP 2024-25**, the total sanctioned untied grant for the current fiscal year is **₹48.5 Lakhs** under the 15th Finance Commission. To date, ₹37.2 Lakhs (76.7%) has been utilized across key projects including Ward 2 CC road paving and Ward 4 solar streetlights.`;
+    answer = `Based on the official **Kothri Kalan GPDP 2024-25**, the total sanctioned untied grant for the current fiscal year is **₹52.0 Lakhs** under the 15th Finance Commission. To date, ₹41.5 Lakhs (79.8%) has been utilized across key projects including Ward 2 CC road paving and Ward 4 solar streetlights in Ashta Block.`;
   } else if (lowerQuery.includes('water') || lowerQuery.includes('tap') || lowerQuery.includes('jjm') || lowerQuery.includes('handpump')) {
-    answer = `According to the **Jal Jeevan Mission Guidelines (Sec 4.2)** and Shivpura water records, the village currently has 78% functional household tap connection (FHTC) coverage with an operational 150 KL Overhead Water Reservoir. If your handpump is discharging muddy or rusty water, an automated work order can be created for cylinder inspection by PHED within 24 hours.`;
+    answer = `According to the **Jal Jeevan Mission Guidelines (Sec 4.2)** and Kothri Kalan water records, the village currently has 76% functional household tap connection (FHTC) coverage with an operational 150 KL Overhead Water Reservoir. If your handpump is discharging muddy or rusty water, an automated work order can be created for cylinder inspection by PHED within 24 hours.`;
   } else if (lowerQuery.includes('kisan') || lowerQuery.includes('farmer') || lowerQuery.includes('6000') || lowerQuery.includes('pm-kisan')) {
     answer = `Under **PM-KISAN Samman Nidhi**, eligible landholding farmer families receive **₹6,000 per year** in 3 tranches of ₹2,000 directly via DBT. You need your Aadhaar card, Jamabandi/Khatauni land revenue record, and an Aadhaar-seeded active bank account. Institutional owners and income tax payers are excluded.`;
   } else if (lowerQuery.includes('house') || lowerQuery.includes('awas') || lowerQuery.includes('pmay') || lowerQuery.includes('bpl')) {

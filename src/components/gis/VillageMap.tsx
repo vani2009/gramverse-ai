@@ -254,15 +254,9 @@ export const VillageMap: React.FC<VillageMapProps> = ({
         initialCenter = targetedVillage.center;
         initialZoom = 15;
       }
-    } else if (selectedBlock.toLowerCase() === 'ashta') {
-      initialCenter = [23.0722, 76.8400];
-      initialZoom = 13;
-    } else if (selectedBlock.toLowerCase() === 'bhimpur') {
-      initialCenter = [21.8418, 77.6212];
-      initialZoom = 14;
     } else {
-      initialCenter = [22.4500, 77.2000];
-      initialZoom = 8;
+      initialCenter = [23.0550, 76.8350];
+      initialZoom = 13;
     }
 
     const map = L.map(container, {
@@ -367,13 +361,8 @@ export const VillageMap: React.FC<VillageMapProps> = ({
       if (v) {
         map.setView(v.center, 15, { animate: true });
       }
-    } else if (selectedBlock.toLowerCase() === 'ashta') {
-      map.setView([23.0722, 76.8400], 13, { animate: true });
-    } else if (selectedBlock.toLowerCase() === 'bhimpur') {
-      map.setView([21.8418, 77.6212], 14, { animate: true });
     } else {
-      // Zoom out to show all blocks
-      map.setView([22.4500, 77.2000], 8, { animate: true });
+      map.setView([23.0550, 76.8350], 13, { animate: true });
     }
 
     setTimeout(() => {
@@ -499,10 +488,10 @@ export const VillageMap: React.FC<VillageMapProps> = ({
               }}
               className="bg-transparent font-bold text-slate-800 outline-none cursor-pointer"
             >
-              <option value="all">All Blocks (Ashta, Bhimpur)</option>
+              <option value="all">Ashta Block (All 5 Panchayats)</option>
               {availableBlocks.map(blk => (
                 <option key={blk} value={blk}>
-                  {blk} Block {blk === 'Ashta' ? '(Sehore)' : blk === 'Bhimpur' ? '(Betul)' : ''}
+                  {blk} Block (Sehore, MP)
                 </option>
               ))}
             </select>
@@ -627,8 +616,8 @@ export const VillageMap: React.FC<VillageMapProps> = ({
           <Globe2 className="w-3.5 h-3.5 text-emerald-600" />
           <span>
             {selectedBlock === 'all'
-              ? 'Multi-Block Spatial GIS View (MP)'
-              : `${selectedBlock} Block Map (${blockVillages.length} Villages)`}
+              ? 'Ashta Block Spatial GIS Map (Sehore, MP)'
+              : `${selectedBlock} Block Map (${blockVillages.length} Villages, Sehore)`}
           </span>
         </div>
         <div className="flex items-center gap-2">

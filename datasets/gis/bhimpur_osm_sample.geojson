@@ -4,34 +4,34 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Bhimpur Main Chauraha Streetlight Cluster",
+        "name": "Lasudiya Khas Main Chauraha Streetlight Cluster",
         "type": "streetlight",
         "condition_status": "needs_repair",
-        "village_name": "Bhimpur",
+        "village_name": "Lasudiya Khas",
         "osm_id": "node/91002341",
         "solar_powered": true
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [77.6219, 21.8422]
+        "coordinates": [76.7822, 23.0185]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Bhimpur-Betul Connecting MDR Segment",
+        "name": "Lasudiya Khas-Ashta Connecting Link Road Segment",
         "type": "road",
         "condition_status": "operational",
-        "village_name": "Bhimpur",
+        "village_name": "Lasudiya Khas",
         "osm_id": "way/4412098",
         "surface": "asphalt"
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [77.6150, 21.8380],
-          [77.6215, 21.8420],
-          [77.6280, 21.8465]
+          [76.7780, 23.0150],
+          [76.7820, 23.0180],
+          [76.7830, 23.0192]
         ]
       }
     }

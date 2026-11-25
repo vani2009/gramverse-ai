@@ -117,23 +117,23 @@ export const MOCK_VILLAGES: Village[] = [
     center: [23.0450, 76.8450]
   },
   {
-    id: 'vil_bhimpur',
-    name: 'Bhimpur',
-    block: 'Bhimpur',
-    district: 'Betul',
+    id: 'vil_lasudiya',
+    name: 'Lasudiya Khas',
+    block: 'Ashta',
+    district: 'Sehore',
     state: 'Madhya Pradesh',
-    population: 2500,
-    totalHouseholds: 410,
-    waterCoveragePct: 50,
-    electricityCoveragePct: 85,
-    sanitationCoveragePct: 65,
-    roadQualityIndex: 55,
-    developmentIndex: 67.5,
-    activeComplaints: 8,
-    resolvedComplaints: 19,
+    population: 2150,
+    totalHouseholds: 340,
+    waterCoveragePct: 65,
+    electricityCoveragePct: 91,
+    sanitationCoveragePct: 72,
+    roadQualityIndex: 64,
+    developmentIndex: 73.5,
+    activeComplaints: 5,
+    resolvedComplaints: 26,
     budgetAllocatedLakhs: 32.0,
-    budgetUtilizedLakhs: 22.4,
-    center: [21.8418, 77.6212]
+    budgetUtilizedLakhs: 24.5,
+    center: [23.0180, 76.7820]
   }
 ];
 
@@ -664,16 +664,16 @@ export const MOCK_COMPLAINTS: Complaint[] = [
     }
   },
 
-  // Bhimpur Complaints (Bhimpur Block, Betul District)
+  // Lasudiya Khas Complaints (Ashta Block, Sehore District)
   {
-    id: 'cmp_bhi_001',
-    citizenId: 'usr_citizen_bhi_01',
-    citizenName: 'Mangal Singh Korku',
+    id: 'cmp_las_001',
+    citizenId: 'usr_citizen_las_01',
+    citizenName: 'Babulal Solanki',
     citizenPhone: '+91 94790 88990',
-    villageId: 'vil_bhimpur',
-    villageName: 'Bhimpur',
-    title: 'Tribal hamlet unpaved forest approach road cut off',
-    description: 'The earthen forest track connecting Korku Tola to Bhimpur main market has washed out with a 4-foot deep trench. Emergency vehicles and milk collection cannot enter.',
+    villageId: 'vil_lasudiya',
+    villageName: 'Lasudiya Khas',
+    title: 'Connecting link road culvert choked with debris and waterlogged',
+    description: 'The stone masonry drainage culvert on the Lasudiya Khas link road connecting to the main Ashta highway is choked with slit and silt, causing waterlogging over 120 meters during heavy rains.',
     category: 'Road',
     status: 'In Review',
     priorityScore: 3125.0,
@@ -681,9 +681,9 @@ export const MOCK_COMPLAINTS: Complaint[] = [
     affectedPopulation: 250,
     estimatedCostLakhs: 0.4,
     location: {
-      lat: 21.8425,
-      lng: 77.6205,
-      landmark: 'Korku Tola Forest Boundary Track'
+      lat: 23.0192,
+      lng: 76.7830,
+      landmark: 'Lasudiya Khas Highway Link Culvert'
     },
     imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80',
     createdAt: '2026-11-19T09:10:00Z',
@@ -691,33 +691,33 @@ export const MOCK_COMPLAINTS: Complaint[] = [
     aiOutput: {
       predictedCategory: 'Road',
       confidence: 0.96,
-      reasoning: 'NLP identified: "forest track", "washed out", "trench", "emergency vehicles". Classified under Road Infrastructure.',
+      reasoning: 'NLP identified: "link road", "culvert", "choked", "waterlogging". Classified under Road Infrastructure.',
       modelVersion: 'TF-IDF-LogReg-v1.4',
       timestamp: '2026-11-19T09:10:05Z',
       isOverridden: false,
-      cvDetections: [{ label: 'Earthen Road Washout', confidence: 0.95, description: 'Gully erosion splitting track width by over 1.2 meters' }]
+      cvDetections: [{ label: 'Culvert Obstruction', confidence: 0.95, description: 'Silt blockage causing surface water flooding' }]
     },
-    panchayatRemarks: 'MGNREGA gravel leveling and boulder pitching sanctioned.'
+    panchayatRemarks: 'De-silting work scheduled by Gram Panchayat maintenance team.'
   },
   {
-    id: 'cmp_bhi_002',
-    citizenId: 'usr_citizen_bhi_02',
-    citizenName: 'Durgadas Dhurve',
+    id: 'cmp_las_002',
+    citizenId: 'usr_citizen_las_02',
+    citizenName: 'Kishore Dhakad',
     citizenPhone: '+91 97130 99001',
-    villageId: 'vil_bhimpur',
-    villageName: 'Bhimpur',
-    title: 'Handpump discharging turbid water with fluoride smell',
-    description: 'Community handpump near Bhimpur Ashram School produces muddy, discolored water with chemical odor. 200 school children and residents are affected.',
+    villageId: 'vil_lasudiya',
+    villageName: 'Lasudiya Khas',
+    title: 'Community handpump in Ward 2 dried up and handle broken',
+    description: 'The sole public handpump serving Ward 2 in Lasudiya Khas has a fractured fulcrum handle and low groundwater yield. Over 280 residents are forced to fetch water from distant fields.',
     category: 'Water',
     status: 'Work Order',
     priorityScore: 4000.0,
     severity: 4,
-    affectedPopulation: 300,
-    estimatedCostLakhs: 0.3,
+    affectedPopulation: 280,
+    estimatedCostLakhs: 0.28,
     location: {
-      lat: 21.8410,
-      lng: 77.6220,
-      landmark: 'Opposite Bhimpur Ashram School'
+      lat: 23.0178,
+      lng: 76.7818,
+      landmark: 'Opposite Lasudiya Khas Primary School'
     },
     imageUrl: 'https://images.unsplash.com/photo-1584467735871-8e85353a8413?w=600&auto=format&fit=crop&q=80',
     createdAt: '2026-11-18T10:30:00Z',
@@ -725,23 +725,23 @@ export const MOCK_COMPLAINTS: Complaint[] = [
     aiOutput: {
       predictedCategory: 'Water',
       confidence: 0.95,
-      reasoning: 'NLP identified: "handpump", "turbid water", "fluoride smell", "school children". High urgency Water supply grievance.',
+      reasoning: 'NLP identified: "handpump", "dried up", "broken handle", "fetch water". High urgency Water supply grievance.',
       modelVersion: 'TF-IDF-LogReg-v1.4',
       timestamp: '2026-11-18T10:30:04Z',
       isOverridden: false,
-      cvDetections: [{ label: 'Turbid Water Discharge', confidence: 0.91, description: 'High suspended solids from borehole degradation' }]
+      cvDetections: [{ label: 'Fractured Handpump Handle', confidence: 0.93, description: 'Mechanical linkage fracture requiring replacement' }]
     },
-    panchayatRemarks: 'Water testing kit dispatch arranged. Alternate tanker instructed.'
+    panchayatRemarks: 'Work order sent to PHED Ashta subdivision mechanic.'
   },
   {
-    id: 'cmp_bhi_003',
-    citizenId: 'usr_citizen_bhi_03',
-    citizenName: 'Smt. Shanti Bai Marskole',
+    id: 'cmp_las_003',
+    citizenId: 'usr_citizen_las_03',
+    citizenName: 'Smt. Mamta Bai Malviya',
     citizenPhone: '+91 96850 11223',
-    villageId: 'vil_bhimpur',
-    villageName: 'Bhimpur',
-    title: 'Bhimpur Main Chauraha solar lights batteries dead',
-    description: 'The 3 solar streetlights at Bhimpur main market junction are completely dead for 3 weeks, leaving the market junction in total darkness.',
+    villageId: 'vil_lasudiya',
+    villageName: 'Lasudiya Khas',
+    title: 'Solar high mast light at Lasudiya Khas Panchayat Bhavan unlit',
+    description: 'The high-mast solar light installed in front of the Gram Panchayat Bhavan and bus stop has been unlit for 12 days due to battery theft and broken controller.',
     category: 'Electricity',
     status: 'Submitted',
     priorityScore: 1944.4,
@@ -749,9 +749,9 @@ export const MOCK_COMPLAINTS: Complaint[] = [
     affectedPopulation: 350,
     estimatedCostLakhs: 0.54,
     location: {
-      lat: 21.8422,
-      lng: 77.6219,
-      landmark: 'Bhimpur Main Chauraha Market Square'
+      lat: 23.0185,
+      lng: 76.7822,
+      landmark: 'Lasudiya Khas Panchayat Bhavan Chowk'
     },
     imageUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600&auto=format&fit=crop&q=80',
     createdAt: '2026-11-20T17:00:00Z',
@@ -759,11 +759,11 @@ export const MOCK_COMPLAINTS: Complaint[] = [
     aiOutput: {
       predictedCategory: 'Electricity',
       confidence: 0.93,
-      reasoning: 'NLP identified: "solar streetlights", "dead batteries", "total darkness", "market junction". Classified under Electricity.',
+      reasoning: 'NLP identified: "solar light", "unlit", "Panchayat Bhavan", "controller". Classified under Electricity.',
       modelVersion: 'TF-IDF-LogReg-v1.4',
       timestamp: '2026-11-20T17:00:03Z',
       isOverridden: false,
-      cvDetections: [{ label: 'Dead Solar Luminaire', confidence: 0.92, description: 'Depleted lithium battery unit with non-functional dusk-to-dawn sensor' }]
+      cvDetections: [{ label: 'Open Solar Battery Enclosure', confidence: 0.92, description: 'Missing battery enclosure and cut low voltage wire' }]
     }
   }
 ];
@@ -1118,85 +1118,85 @@ export const MOCK_INFRASTRUCTURE: InfrastructureAsset[] = [
     beneficiariesCount: 520
   },
 
-  // Bhimpur Infrastructure (Bhimpur Block, Betul District)
+  // Lasudiya Khas Infrastructure (Ashta Block, Sehore District)
   {
-    id: 'inf_bhi_001',
-    villageId: 'vil_bhimpur',
-    villageName: 'Bhimpur',
-    name: 'Bhimpur Tribal Welfare Ashram School',
+    id: 'inf_las_001',
+    villageId: 'vil_lasudiya',
+    villageName: 'Lasudiya Khas',
+    name: 'Govt Primary & Middle School Lasudiya Khas',
     type: 'School',
     condition: 'Good',
     location: {
-      lat: 21.8428,
-      lng: 77.6215,
-      description: 'Bhimpur High School Campus'
+      lat: 23.0188,
+      lng: 76.7825,
+      description: 'Main Village School Campus'
     },
-    installYear: 2008,
+    installYear: 2012,
     lastInspected: '2026-10-15',
-    beneficiariesCount: 480
+    beneficiariesCount: 280
   },
   {
-    id: 'inf_bhi_002',
-    villageId: 'vil_bhimpur',
-    villageName: 'Bhimpur',
-    name: 'Bhimpur Primary Health Centre (PHC)',
+    id: 'inf_las_002',
+    villageId: 'vil_lasudiya',
+    villageName: 'Lasudiya Khas',
+    name: 'Lasudiya Khas Health & Wellness Sub-Center',
     type: 'Health Sub-Center',
     condition: 'Good',
     location: {
-      lat: 21.8408,
-      lng: 77.6208,
-      description: 'Main Road Hospital Complex'
+      lat: 23.0170,
+      lng: 76.7810,
+      description: 'Panchayat Health Sub-Center'
     },
-    installYear: 2013,
+    installYear: 2018,
     lastInspected: '2026-11-01',
-    beneficiariesCount: 3200
+    beneficiariesCount: 1850
   },
   {
-    id: 'inf_bhi_003',
-    villageId: 'vil_bhimpur',
-    villageName: 'Bhimpur',
-    name: 'Bhimpur Main Chauraha Streetlight Cluster',
+    id: 'inf_las_003',
+    villageId: 'vil_lasudiya',
+    villageName: 'Lasudiya Khas',
+    name: 'Lasudiya Khas Main Chauraha Streetlight Cluster',
     type: 'Solar Streetlight',
     condition: 'Critical Repair',
     location: {
-      lat: 21.8422,
-      lng: 77.6219,
-      description: 'Market Junction High Mast'
+      lat: 23.0185,
+      lng: 76.7822,
+      description: 'Gram Panchayat Bhavan Square'
     },
     installYear: 2022,
     lastInspected: '2026-11-20',
-    beneficiariesCount: 1200
+    beneficiariesCount: 1100
   },
   {
-    id: 'inf_bhi_004',
-    villageId: 'vil_bhimpur',
-    villageName: 'Bhimpur',
-    name: 'Bhimpur-Betul Connecting MDR Road Section',
+    id: 'inf_las_004',
+    villageId: 'vil_lasudiya',
+    villageName: 'Lasudiya Khas',
+    name: 'Lasudiya Khas-Ashta Connecting Link Road Segment',
     type: 'Road Stretches',
     condition: 'Good',
     location: {
-      lat: 21.8420,
-      lng: 77.6215,
-      description: 'Major District Road Segment'
+      lat: 23.0192,
+      lng: 76.7830,
+      description: 'Ashta Highway Connecting Bituminous Road'
     },
-    installYear: 2019,
+    installYear: 2020,
     lastInspected: '2026-09-30',
-    beneficiariesCount: 4500
+    beneficiariesCount: 2150
   },
   {
-    id: 'inf_bhi_005',
-    villageId: 'vil_bhimpur',
-    villageName: 'Bhimpur',
-    name: 'Bhimpur Deep Borewell Dual Solar Pump',
+    id: 'inf_las_005',
+    villageId: 'vil_lasudiya',
+    villageName: 'Lasudiya Khas',
+    name: 'Lasudiya Khas Deep Borewell Dual Solar Pump',
     type: 'Handpump',
     condition: 'Needs Maintenance',
     location: {
-      lat: 21.8412,
-      lng: 77.6225,
-      description: 'Opposite Community Hall'
+      lat: 23.0178,
+      lng: 76.7818,
+      description: 'Ward 2 Public Square'
     },
     installYear: 2021,
     lastInspected: '2026-11-18',
-    beneficiariesCount: 680
+    beneficiariesCount: 540
   }
 ];

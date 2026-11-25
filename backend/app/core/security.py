@@ -41,19 +41,19 @@ DEV_MOCK_USERS: Dict[str, Dict[str, Any]] = {
     "dev-admin-token": {
         "uid": "dev_admin_uid_001",
         "email": "admin@gramverse.gov.in",
-        "name": "District Collector Gwalior",
+        "name": "District Collector Sehore",
         "role": "admin"
     },
     "dev-panchayat-token": {
         "uid": "dev_panchayat_uid_002",
-        "email": "sarpanch@shivpura.org",
-        "name": "Ramesh Patel (Sarpanch)",
+        "email": "sarpanch@kothrikalan.org",
+        "name": "Mahendra Patel (Sarpanch)",
         "role": "panchayat"
     },
     "dev-citizen-token": {
         "uid": "dev_citizen_uid_003",
-        "email": "citizen@shivpura.org",
-        "name": "Sunita Devi",
+        "email": "citizen@kothrikalan.org",
+        "name": "Rameshwar Lal Gurjar",
         "role": "citizen"
     },
     "dev-survey-token": {

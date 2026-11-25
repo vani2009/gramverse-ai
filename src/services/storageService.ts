@@ -194,7 +194,7 @@ class StorageService {
           electricity_available: household.hasElectricity,
           toilet_available: household.hasSanitationToilet,
           caste_category: household.casteCategory,
-          qr_code_id: `QR-SHIV-${household.aadhaarLastFour}`,
+          qr_code_id: `QR-KOTHRI-${household.aadhaarLastFour}`,
           latitude: household.location.lat,
           longitude: household.location.lng
         });

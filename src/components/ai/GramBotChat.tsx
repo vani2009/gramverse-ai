@@ -15,7 +15,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
 const SUGGESTED_PROMPTS = [
   "What is our GPDP budget and funds utilization for 2024-25?",
   "What are the eligibility rules and documents for PM-KISAN?",
-  "How many tap connections exist in Shivpura under JJM?",
+  "How many tap connections exist in Kothri Kalan under JJM?",
   "What is the official SLA timeline for fixing a broken handpump?",
   "What benefits are provided under PMAY-G for kutcha houses?"
 ];
@@ -200,7 +200,7 @@ export const GramBotChat: React.FC = () => {
         <div className="bg-rose-50 border-t border-rose-200 px-4 py-2 flex items-center justify-between text-xs text-rose-800 animate-pulse">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-600"></span>
-            <span>Listening in Hindi / Rajasthani / English... Speak your question.</span>
+            <span>Listening in Hindi / Malvi / English... Speak your question.</span>
           </div>
           <span className="font-mono text-[10px]">Recording...</span>
         </div>

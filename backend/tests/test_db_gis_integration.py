@@ -65,25 +65,25 @@ def test_gis_loader_feature_extraction_and_import() -> None:
 
     # Verify coordinate extraction
     point_coords = _extract_lon_lat(features[0]["geometry"])
-    assert point_coords == (77.6219, 21.8422)
+    assert point_coords == (76.7822, 23.0185)
 
     line_coords = _extract_lon_lat(features[1]["geometry"])
-    assert line_coords == (77.6215, 21.8420)
+    assert line_coords == (76.7820, 23.0180)
 
     # Test import execution with sync database session
     engine = create_engine(settings.sync_database_url)
     with Session(engine) as db:
-        village = db.scalar(select(Village).where(Village.name == "Bhimpur"))
+        village = db.scalar(select(Village).where(Village.name == "Lasudiya Khas"))
         if not village:
             village = Village(
-                name="Bhimpur",
-                block="Bhimpur",
-                district="Betul",
+                name="Lasudiya Khas",
+                block="Ashta",
+                district="Sehore",
                 state="Madhya Pradesh",
-                population=2500,
-                literacy_rate=65.0,
-                latitude=21.84,
-                longitude=77.62
+                population=2150,
+                literacy_rate=68.0,
+                latitude=23.0180,
+                longitude=76.7820
             )
             db.add(village)
             db.commit()

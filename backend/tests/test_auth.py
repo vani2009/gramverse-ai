@@ -38,7 +38,7 @@ def test_auth_me_authenticated():
     data = response.json()
     assert data["role"] == "admin"
     assert data["email"] == "admin@gramverse.gov.in"
-    assert data["name"] == "District Collector Gwalior"
+    assert data["name"] == "District Collector Sehore"
 
 
 def test_role_enforcement_allow_admin():

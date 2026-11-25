@@ -35,20 +35,20 @@ async def test_session():
 @pytest.mark.anyio
 async def test_create_village_and_user(test_session: AsyncSession):
     village = Village(
-        name="Shivpura",
-        block="Ghatigaon",
-        district="Gwalior",
+        name="Kothri Kalan Test",
+        block="Ashta",
+        district="Sehore",
         population=1240,
         literacy_rate=68.5,
-        latitude=26.1234,
-        longitude=78.5678
+        latitude=23.07,
+        longitude=76.83
     )
     test_session.add(village)
     await test_session.commit()
     await test_session.refresh(village)
 
     assert village.id is not None
-    assert village.name == "Shivpura"
+    assert village.name == "Kothri Kalan Test"
 
     user = User(
         firebase_uid="firebase_uid_test_123",

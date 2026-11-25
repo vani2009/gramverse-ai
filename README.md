@@ -9,7 +9,7 @@ Built directly in alignment with the **GramVerse AI UI, Frontend & Backend Devel
 ## 🌟 Architecture & Key Features
 
 ### 1. Four Role-Based Interfaces (1-Click Switcher)
-- 👨‍💼 **District Administrator**: Multi-village overview (Shivpura, Kalyanpur, Rampur, Belgaon), comparative infrastructure analytics (water, electricity, sanitation coverage %), development rankings, and automated district report generator.
+- 👨‍💼 **District Administrator**: Multi-village overview (Kothri Kalan, Amlaha, Metwada, Bhaunra, Lasudiya Khas in Ashta Block, Sehore District, MP), comparative infrastructure analytics (water, electricity, sanitation coverage %), development rankings, and automated district report generator.
 - 🏛️ **Panchayat Official (Sarpanch / Secretary)**: Village demographic statistics, spatial GIS Leaflet map with PostGIS asset/complaint pins, grievance triaging with AI predictions, authorized **category override & review**, and the rule-based **Development Prioritization Planner**.
 - 🌾 **Citizen / Villager**: Citizen Jan Seva dashboard, lodge grievances with live NLP category detection & CV defect analysis preview, GPS coordinate capture, stage-by-stage grievance status timeline, **Scheme Explorer** with rule-based matching, and **GramBot AI Chatbot** with verifiable citations.
 - 📱 **Field Surveyor (Mobile PWA)**: Mobile-first field survey forms for Household & Civic Infrastructure surveys, GPS geotagging, offline storage in IndexedDB/LocalStorage, network status simulator, and **Offline Sync Queue** manager.

@@ -84,7 +84,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const handleExportReport = () => {
     const reportText = `GRAMVERSE AI - DISTRICT GOVERNANCE & AI ANALYTICS REPORT
 Generated: ${new Date().toLocaleString()}
-District: Sehore & Betul Districts (MP) | Total Villages Tracked: ${villages.length}
+District: Sehore District (MP) | Block: Ashta Block | Total Villages Tracked: ${villages.length}
 ===================================================================
 Total Block Population: ${totalPopulation.toLocaleString()}
 Total Registered Households: ${totalHouseholds.toLocaleString()}
@@ -119,7 +119,7 @@ AI ENGINE TELEMETRY:
             <Building2 className="w-3.5 h-3.5" /> District & Block Administration Portal
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight">
-            Sehore & Betul Districts Overview
+            Sehore District Overview (Ashta Block)
           </h1>
           <p className="text-xs text-indigo-200 mt-1 max-w-xl">
             Multi-village monitoring, comparative infrastructure metrics, AI grievance trends and development rankings across Panchayats.
@@ -301,9 +301,8 @@ AI ENGINE TELEMETRY:
               onChange={e => setSelectedBlock(e.target.value)}
               className="text-xs font-medium border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white text-slate-700 outline-hidden"
             >
-              <option value="all">All Blocks (Ashta, Bhimpur)</option>
-              <option value="Ashta">Ashta Block (Sehore District)</option>
-              <option value="Bhimpur">Bhimpur Block (Betul District)</option>
+              <option value="all">All Panchayats (Ashta Block, Sehore)</option>
+              <option value="Ashta">Ashta Block</option>
             </select>
           </div>
         </div>

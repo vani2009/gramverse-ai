@@ -167,7 +167,7 @@ export const DevelopmentPlanner: React.FC<DevelopmentPlannerProps> = ({ village 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
-            <h3 className="font-bold text-sm text-slate-900">Ranked Action Register (Shivpura GP)</h3>
+            <h3 className="font-bold text-sm text-slate-900">Ranked Action Register ({village.name} GP)</h3>
             <p className="text-xs text-slate-500">Auto-sorted by priority score for Gram Sabha allocation</p>
           </div>
           <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">

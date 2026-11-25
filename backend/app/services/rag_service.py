@@ -8,7 +8,7 @@ KNOWLEDGE_BASE = [
         "answer": "Under the Jal Jeevan Mission (JJM), every rural household is entitled to a Functional Household Tap Connection (FHTC) delivering 55 liters per capita per day (lpcd) of potable water. Panchayats execute village water security plans via the Village Water and Sanitation Committee (VWSC).",
         "sources": [
             {"title": "Jal Jeevan Mission Operational Guidelines", "citation": "[Source: JJM Guidelines Section 4.2]"},
-            {"title": "Village Water Security Plan", "citation": "[Source: VWSC Shivpura 2024-25]"}
+            {"title": "Village Water Security Plan", "citation": "[Source: VWSC Kothri Kalan 2024-25]"}
         ]
     },
     {

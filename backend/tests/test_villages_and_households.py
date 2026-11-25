@@ -8,18 +8,18 @@ client = TestClient(app)
 def test_create_village_as_admin():
     headers = {"Authorization": "Bearer dev-admin-token"}
     payload = {
-        "name": "Shivpura Test",
-        "block": "Ghatigaon",
-        "district": "Gwalior",
+        "name": "Lasudiya Test",
+        "block": "Ashta",
+        "district": "Sehore",
         "population": 1500,
         "literacy_rate": 72.0,
-        "latitude": 26.12,
-        "longitude": 78.15
+        "latitude": 23.02,
+        "longitude": 76.78
     }
     response = client.post("/api/v1/villages", json=payload, headers=headers)
     assert response.status_code == 201
     data = response.json()
-    assert data["name"] == "Shivpura Test"
+    assert data["name"] == "Lasudiya Test"
     assert data["population"] == 1500
 
 
@@ -41,7 +41,7 @@ def test_list_villages():
     villages = response.json()
     assert isinstance(villages, list)
     assert len(villages) >= 1
-    assert any(v["name"] == "Shivpura Test" for v in villages)
+    assert any(v["name"] == "Lasudiya Test" for v in villages)
 
 
 def test_get_village_detail():
@@ -73,13 +73,13 @@ def test_create_household_as_surveyor():
         "electricity_available": True,
         "toilet_available": False,
         "caste_category": "OBC",
-        "qr_code_id": "QR_TEST_SHIVPURA_001"
+        "qr_code_id": "QR_TEST_LASUDIYA_001"
     }
     response = client.post("/api/v1/households", json=payload, headers=headers)
     assert response.status_code == 201
     data = response.json()
     assert data["household_head"] == "Babulal Kushwah"
-    assert data["qr_code_id"] == "QR_TEST_SHIVPURA_001"
+    assert data["qr_code_id"] == "QR_TEST_LASUDIYA_001"
 
 
 def test_duplicate_qr_code_rejected():
@@ -90,7 +90,7 @@ def test_duplicate_qr_code_rejected():
     payload = {
         "village_id": village_id,
         "household_head": "Duplicate Person",
-        "qr_code_id": "QR_TEST_SHIVPURA_001"
+        "qr_code_id": "QR_TEST_LASUDIYA_001"
     }
     response = client.post("/api/v1/households", json=payload, headers=headers)
     assert response.status_code == 400
