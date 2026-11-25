@@ -934,33 +934,8 @@ export function translateString(text: string, targetLang: SupportedLanguage): st
 /**
  * Trigger official Google Translate client-side translation
  */
-export function triggerGoogleTranslate(langCode: SupportedLanguage): void {
-  try {
-    if (typeof document === 'undefined') return;
-
-    if (langCode === 'en') {
-      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${window.location.hostname}; path=/;`;
-      const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
-      if (select) {
-        select.value = 'en';
-        select.dispatchEvent(new Event('change'));
-      }
-      return;
-    }
-
-    const cookieVal = `/en/${langCode}`;
-    document.cookie = `googtrans=${cookieVal}; path=/;`;
-    document.cookie = `googtrans=${cookieVal}; domain=${window.location.hostname}; path=/;`;
-
-    const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
-    if (select) {
-      select.value = langCode;
-      select.dispatchEvent(new Event('change'));
-    }
-  } catch (err) {
-    console.warn('Google Translate sync:', err);
-  }
+export function triggerGoogleTranslate(_langCode: SupportedLanguage): void {
+  // Clean no-op to eliminate DOM thrashing and cookie loops
 }
 
 /**
