@@ -1,8 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Complaint, InfrastructureAsset, Village } from '../../types';
 import { Layers, MapPin, AlertCircle, Wrench, ShieldAlert, Navigation, Search, CheckCircle2 } from 'lucide-react';
 import { apiService, GeoJSONFeatureCollection } from '../../services/apiService';
+
+// Fix leaflet default icon assets if standard markers are ever created
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
 
 interface VillageMapProps {
   village: Village;
@@ -88,6 +97,7 @@ export const VillageMap: React.FC<VillageMapProps> = ({
           iconLetter = '⚡';
           break;
         case 'road':
+        case 'road stretches':
           bgColor = '#64748b';
           iconLetter = '🛣️';
           break;
@@ -137,11 +147,11 @@ export const VillageMap: React.FC<VillageMapProps> = ({
     radiusLayer.clearLayers();
 
     // Draw visual buffer circle
-    const circle = L.circle([lat, lng], {
+    L.circle([lat, lng], {
       radius: proximityRadius,
       color: '#0284c7',
       fillColor: '#38bdf8',
-      fillOpacity: 0.15,
+      fillOpacity: 0.18,
       weight: 2,
       dashArray: '4, 4'
     }).addTo(radiusLayer);
@@ -168,54 +178,77 @@ export const VillageMap: React.FC<VillageMapProps> = ({
         </div>
       `).openPopup();
     } catch {
-      // Local fallback calculation
       setNearbyResults({ count: 1, center: [lat, lng] });
     }
   };
 
-  // Initialize Map
+  // Initialize Map lifecycle
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    const container = mapContainerRef.current;
+    if (!container) return;
 
-    if (!mapInstanceRef.current) {
-      const map = L.map(mapContainerRef.current, {
-        center: village.center,
-        zoom: 15,
-        zoomControl: true
-      });
-
-      // CartoDB Voyager tiles (clean, professional, modern map style)
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a> & OpenStreetMap',
-        maxZoom: 19
-      }).addTo(map);
-
-      // Village perimeter circle
-      L.circle(village.center, {
-        radius: 950,
-        color: '#16a34a',
-        fillColor: '#22c55e',
-        fillOpacity: 0.06,
-        dashArray: '6, 6',
-        weight: 2
-      }).addTo(map);
-
-      const markersGroup = L.layerGroup().addTo(map);
-      markersLayerRef.current = markersGroup;
-
-      const radiusGroup = L.layerGroup().addTo(map);
-      radiusLayerRef.current = radiusGroup;
-
-      map.on('click', handleMapClick);
-      mapInstanceRef.current = map;
-    } else {
-      mapInstanceRef.current.setView(village.center, 15);
+    // Clean up existing map instance if container or village changed
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
     }
 
-    return () => {
-      // Keep instance across re-renders
+    const map = L.map(container, {
+      center: village.center,
+      zoom: 15,
+      zoomControl: true,
+      scrollWheelZoom: true
+    });
+
+    // Primary: OpenStreetMap standard tiles (ultra-reliable, free, high availability in India)
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Village perimeter circle
+    L.circle(village.center, {
+      radius: 1200,
+      color: '#16a34a',
+      fillColor: '#22c55e',
+      fillOpacity: 0.08,
+      dashArray: '6, 6',
+      weight: 2
+    }).addTo(map);
+
+    const markersGroup = L.layerGroup().addTo(map);
+    markersLayerRef.current = markersGroup;
+
+    const radiusGroup = L.layerGroup().addTo(map);
+    radiusLayerRef.current = radiusGroup;
+
+    map.on('click', handleMapClick);
+    mapInstanceRef.current = map;
+
+    // Invalidate size after layout mounts to ensure tiles render immediately
+    const t1 = setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
+
+    const t2 = setTimeout(() => {
+      map.invalidateSize();
+    }, 500);
+
+    const handleResize = () => {
+      map.invalidateSize();
     };
-  }, [village, proximityMode, proximityRadius]);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener('resize', handleResize);
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [village.id, village.center[0], village.center[1], proximityMode, proximityRadius]);
 
   // Update Markers when filters or data change
   useEffect(() => {
@@ -302,7 +335,7 @@ export const VillageMap: React.FC<VillageMapProps> = ({
   }, [complaints, infrastructure, filterLayer, selectedComplaintId]);
 
   return (
-    <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+    <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm" style={{ minHeight: height }}>
       {/* Top Left: PostGIS Status & Proximity Tool */}
       <div className="absolute top-3 left-3 z-[1000] flex flex-wrap items-center gap-2 text-xs">
         <div className={`px-2.5 py-1.5 rounded-xl shadow-md border backdrop-blur-md flex items-center gap-1.5 font-semibold ${
@@ -337,7 +370,7 @@ export const VillageMap: React.FC<VillageMapProps> = ({
           <select
             value={proximityRadius}
             onChange={e => setProximityRadius(Number(e.target.value))}
-            className="px-2 py-1.5 rounded-xl bg-white shadow-md border border-slate-200 text-xs font-semibold text-slate-700"
+            className="px-2 py-1.5 rounded-xl bg-white shadow-md border border-slate-200 text-xs font-semibold text-slate-700 outline-none"
           >
             <option value={500}>500m</option>
             <option value={1000}>1,000m (1 km)</option>
@@ -384,7 +417,7 @@ export const VillageMap: React.FC<VillageMapProps> = ({
       {/* Legend Badge Bottom Left */}
       <div className="absolute bottom-4 left-4 z-[1000] bg-white/95 backdrop-blur-md px-3 py-2 rounded-xl shadow-md border border-slate-200 text-[11px] text-slate-600 space-y-1">
         <div className="font-semibold text-slate-800 flex items-center gap-1.5 mb-1">
-          <MapPin className="w-3 h-3 text-emerald-600" /> GIS Coordinates: {village.name} GP
+          <MapPin className="w-3 h-3 text-emerald-600" /> {village.name} GP ({village.block}, {village.district})
         </div>
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
@@ -400,7 +433,13 @@ export const VillageMap: React.FC<VillageMapProps> = ({
         </div>
       </div>
 
-      <div ref={mapContainerRef} style={{ height, width: '100%' }} />
+      {/* Actual Map DOM Node with explicit style and fallback */}
+      <div 
+        ref={mapContainerRef} 
+        id="gramverse-leaflet-map"
+        style={{ height: height, width: '100%', minHeight: height, backgroundColor: '#e2e8f0' }} 
+        className="z-0"
+      />
     </div>
   );
 };

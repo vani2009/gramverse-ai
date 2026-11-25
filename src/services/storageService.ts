@@ -61,7 +61,7 @@ class StorageService {
 
   // Selected Village
   getSelectedVillageId(): string {
-    return localStorage.getItem(STORAGE_KEYS.VILLAGE_ID) || 'vil_shivpura';
+    return localStorage.getItem(STORAGE_KEYS.VILLAGE_ID) || 'vil_kothri';
   }
 
   setSelectedVillageId(id: string) {
@@ -265,9 +265,9 @@ class StorageService {
           client_uuid: item.id.replace('off_', 'uuid_') + '_' + Date.now(),
           survey_type: item.type,
           survey_data: item.payload,
-          latitude: item.payload?.location?.lat || 26.9855,
-          longitude: item.payload?.location?.lng || 75.7225,
-          household_qr_code: item.payload?.aadhaarLastFour ? `QR-SHIV-${item.payload.aadhaarLastFour}` : undefined
+          latitude: item.payload?.location?.lat || 23.0722,
+          longitude: item.payload?.location?.lng || 76.8296,
+          household_qr_code: item.payload?.aadhaarLastFour ? `QR-KOTHRI-${item.payload.aadhaarLastFour}` : undefined
         }));
 
         const backendResult = await apiService.syncSurveys(batchPayload);
