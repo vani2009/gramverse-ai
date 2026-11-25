@@ -71,6 +71,11 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
 
   // Voice-to-Text & Language Identification State
   const [isListening, setIsListening] = useState(false);
+  const isListeningRef = useRef(false);
+  const initialTextBeforeRecord = useRef('');
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const [audioVolume, setAudioVolume] = useState<number>(0);
   const [voiceLang, setVoiceLang] = useState<string>(() => {
     const found = SUPPORTED_LANGUAGES.find(l => l.code === language);
     return found ? found.speechCode : 'hi-IN';
@@ -119,82 +124,176 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
     }
   }, [description]);
 
+  // Audio meter for live feedback
+  const setupAudioMeter = (stream: MediaStream) => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const audioCtx = new AudioCtx();
+      audioContextRef.current = audioCtx;
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 128;
+      source.connect(analyser);
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const updateMeter = () => {
+        if (!isListeningRef.current) return;
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          sum += dataArray[i];
+        }
+        const avg = sum / dataArray.length;
+        setAudioVolume(Math.min(100, Math.round((avg / 128) * 100)));
+        requestAnimationFrame(updateMeter);
+      };
+      requestAnimationFrame(updateMeter);
+    } catch (err) {
+      console.warn("Audio meter init error:", err);
+    }
+  };
+
   // Voice Speech Recognition functions
-  const startVoiceRecording = () => {
+  const startVoiceRecording = async () => {
     setSpeechError(null);
+    setAudioVolume(0);
+
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      setSpeechError("Speech recognition API not available on this browser. Click a sample below to test.");
+      setSpeechError("Speech recognition API is not supported in this browser. Please use Chrome, Edge, or mobile browser.");
       return;
+    }
+
+    // Step 1: Explicitly request microphone stream to ensure browser prompt and audio hardware activation
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        micStreamRef.current = stream;
+        setupAudioMeter(stream);
+      }
+    } catch (permErr: any) {
+      console.warn("Microphone permission check:", permErr);
+      if (permErr.name === 'NotAllowedError' || permErr.name === 'PermissionDeniedError') {
+        setSpeechError("Microphone permission was blocked. Please click the lock icon in your address bar and allow Microphone access.");
+        return;
+      }
     }
 
     try {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try { recognitionRef.current.stop(); } catch {}
       }
 
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = voiceLang;
+      recognition.lang = voiceLang || 'hi-IN';
+
+      initialTextBeforeRecord.current = description.trim();
+      let finalAccumulated = '';
 
       recognition.onstart = () => {
         setIsListening(true);
+        isListeningRef.current = true;
       };
 
       recognition.onresult = (event: any) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
+        let interimText = '';
+
+        for (let i = 0; i < event.results.length; i++) {
+          const part = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalAccumulated += part + ' ';
+          } else {
+            interimText += part;
+          }
         }
 
-        if (transcript) {
-          setDescription(prev => {
-            const trimmed = prev.trim();
-            return trimmed ? `${trimmed} ${transcript}` : transcript;
-          });
+        const currentSpoken = (finalAccumulated + interimText).trim();
+        if (currentSpoken) {
+          const base = initialTextBeforeRecord.current;
+          const fullText = base ? `${base} ${currentSpoken}` : currentSpoken;
+          setDescription(fullText);
 
-          // Detect language
-          const detected = detectIndianLanguageFromText(transcript);
+          // Detect Indian language
+          const detected = detectIndianLanguageFromText(fullText);
           const langMatch = SUPPORTED_LANGUAGES.find(l => l.code === detected);
           if (langMatch) {
             setDetectedLanguage(`${langMatch.nativeName} (${langMatch.name})`);
           }
 
           // Suggest title if empty
-          if (!title.trim() && transcript.trim().length > 3) {
-            const words = transcript.trim().split(/\s+/);
+          if (!title.trim() && currentSpoken.length > 3) {
+            const words = currentSpoken.split(/\s+/);
             setTitle(words.slice(0, 6).join(' '));
           }
         }
       };
 
       recognition.onerror = (err: any) => {
-        console.warn('Speech recognition error:', err);
-        setIsListening(false);
+        console.warn('Speech recognition error event:', err.error);
+        if (err.error === 'no-speech') {
+          // Natural pause in speaking, do not terminate session
+          return;
+        }
         if (err.error === 'not-allowed') {
-          setSpeechError("Microphone permission was denied. You can test with the instant Indian voice presets below.");
+          setSpeechError("Microphone permission was blocked in browser. Please permit mic access in your browser settings.");
+          stopVoiceRecording();
+          return;
+        }
+        if (err.error === 'audio-capture') {
+          setSpeechError("No microphone audio detected. Please check your mic connection or input device.");
+          stopVoiceRecording();
+          return;
+        }
+        if (err.error === 'network') {
+          setSpeechError("Voice server connection timeout. You can continue speaking or test using presets.");
         }
       };
 
       recognition.onend = () => {
-        setIsListening(false);
+        if (isListeningRef.current) {
+          try {
+            recognition.start();
+          } catch {
+            setIsListening(false);
+            isListeningRef.current = false;
+          }
+        } else {
+          setIsListening(false);
+        }
       };
 
       recognitionRef.current = recognition;
       recognition.start();
     } catch (e: any) {
+      console.error("SpeechRecognition start error:", e);
       setIsListening(false);
-      setSpeechError("Unable to initialize microphone. Use the instant voice presets below.");
+      isListeningRef.current = false;
+      setSpeechError("Unable to activate speech recognition. Please verify microphone permission in your browser.");
     }
   };
 
   const stopVoiceRecording = () => {
+    isListeningRef.current = false;
+    setIsListening(false);
+    setAudioVolume(0);
+
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      try { recognitionRef.current.stop(); } catch {}
       recognitionRef.current = null;
     }
-    setIsListening(false);
+
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach(track => track.stop());
+      micStreamRef.current = null;
+    }
+
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      try { audioContextRef.current.close(); } catch {}
+      audioContextRef.current = null;
+    }
   };
 
   // Instant Indian voice samples for demonstration
@@ -571,7 +670,7 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
                 <button
                   type="button"
                   onClick={isListening ? stopVoiceRecording : startVoiceRecording}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition shadow-xs ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition shadow-xs cursor-pointer ${
                     isListening
                       ? 'bg-rose-600 hover:bg-rose-700 text-white animate-pulse ring-2 ring-rose-400'
                       : 'bg-emerald-600 hover:bg-emerald-700 text-white'
@@ -590,6 +689,18 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
                     </>
                   )}
                 </button>
+
+                {/* Live sound wave & audio level indicator */}
+                {isListening && (
+                  <div className="flex items-center gap-2 bg-emerald-100/90 px-3 py-1.5 rounded-lg border border-emerald-300 text-xs font-semibold text-emerald-900 shadow-2xs">
+                    <div className="flex items-end gap-1 h-3.5">
+                      <span className="w-1 bg-emerald-600 rounded-full transition-all duration-75" style={{ height: `${Math.max(25, audioVolume * 0.9)}%` }}></span>
+                      <span className="w-1.5 bg-emerald-600 rounded-full transition-all duration-75" style={{ height: `${Math.max(45, audioVolume * 1.3)}%` }}></span>
+                      <span className="w-1 bg-emerald-600 rounded-full transition-all duration-75" style={{ height: `${Math.max(30, audioVolume * 0.8)}%` }}></span>
+                    </div>
+                    <span>{audioVolume > 10 ? 'Receiving Voice Audio...' : 'Microphone Ready — Speak Now'}</span>
+                  </div>
+                )}
               </div>
 
               {/* Translation Button */}
