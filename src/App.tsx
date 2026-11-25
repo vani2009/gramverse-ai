@@ -29,6 +29,7 @@ export function App() {
     storageService.getVillages()[0]
   );
   const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [selectedComplaintForMap, setSelectedComplaintForMap] = useState<Complaint | null>(null);
 
   // Keep state synced
   useEffect(() => {
@@ -75,13 +76,17 @@ export function App() {
               village={selectedVillage}
               onNavigateTab={tab => setActiveTab(tab)}
               onSelectComplaintForInspection={_cmp => setActiveTab('complaints')}
+              initialComplaint={selectedComplaintForMap}
             />
           );
         case 'complaints':
           return (
             <ComplaintsManager
               village={selectedVillage}
-              onLocateOnMap={_cmp => setActiveTab('dashboard')}
+              onLocateOnMap={cmp => {
+                setSelectedComplaintForMap(cmp);
+                setActiveTab('dashboard');
+              }}
             />
           );
         case 'households':

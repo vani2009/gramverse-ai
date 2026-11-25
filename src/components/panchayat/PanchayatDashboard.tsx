@@ -20,12 +20,14 @@ interface PanchayatDashboardProps {
   village: Village;
   onNavigateTab: (tab: string) => void;
   onSelectComplaintForInspection?: (complaint: Complaint) => void;
+  initialComplaint?: Complaint | null;
 }
 
 export const PanchayatDashboard: React.FC<PanchayatDashboardProps> = ({
   village,
   onNavigateTab,
-  onSelectComplaintForInspection
+  onSelectComplaintForInspection,
+  initialComplaint
 }) => {
   const allVillages = storageService.getVillages();
   const allComplaints = storageService.getComplaints();
@@ -35,7 +37,15 @@ export const PanchayatDashboard: React.FC<PanchayatDashboardProps> = ({
   const households = storageService.getHouseholds().filter(h => h.villageId === village.id);
   const infrastructure = allInfrastructure.filter(i => i.villageId === village.id);
 
-  const [selectedMapComplaint, setSelectedMapComplaint] = useState<Complaint | null>(null);
+  const [selectedMapComplaint, setSelectedMapComplaint] = useState<Complaint | null>(
+    initialComplaint || null
+  );
+
+  React.useEffect(() => {
+    if (initialComplaint) {
+      setSelectedMapComplaint(initialComplaint);
+    }
+  }, [initialComplaint]);
 
   const activeComplaints = complaints.filter(c => c.status !== 'Resolved');
   const resolvedCount = complaints.filter(c => c.status === 'Resolved').length;
@@ -148,32 +158,42 @@ export const PanchayatDashboard: React.FC<PanchayatDashboardProps> = ({
                 .filter(c => c.status !== 'Resolved')
                 .sort((a, b) => b.priorityScore - a.priorityScore)
                 .slice(0, 3)
-                .map(item => (
-                  <div
-                    key={item.id}
-                    onClick={() => {
-                      setSelectedMapComplaint(item);
-                      if (onSelectComplaintForInspection) onSelectComplaintForInspection(item);
-                    }}
-                    className="p-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition cursor-pointer space-y-1.5"
-                  >
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-slate-700 border border-slate-200">
-                        {item.category}
-                      </span>
-                      <span className="font-mono font-bold text-rose-600">
-                        Score: {item.priorityScore}
-                      </span>
-                    </div>
+                .map(item => {
+                  const isSelected = selectedMapComplaint?.id === item.id;
+                  const isCritical = item.priorityScore >= 3000;
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => setSelectedMapComplaint(item)}
+                      className={`p-3 rounded-xl border transition cursor-pointer space-y-1.5 ${
+                        isSelected
+                          ? 'border-rose-400 bg-rose-50/70 shadow-xs ring-1 ring-rose-300'
+                          : 'border-slate-100 bg-slate-50 hover:bg-slate-100/80'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                          isCritical
+                            ? 'bg-rose-100 text-rose-800 border-rose-200'
+                            : 'bg-amber-100 text-amber-800 border-amber-200'
+                        }`}>
+                          {isCritical ? '🔴 Critical' : '🟠 Active'}: {item.category}
+                        </span>
+                        <span className="font-mono font-bold text-rose-600">
+                          Score: {item.priorityScore}
+                        </span>
+                      </div>
 
-                    <div className="font-bold text-xs text-slate-900 leading-snug">{item.title}</div>
-                    <div className="text-[11px] text-slate-500">📍 {item.location.landmark}</div>
+                      <div className="font-bold text-xs text-slate-900 leading-snug">{item.title}</div>
+                      <div className="text-[11px] text-slate-500">📍 {item.location.landmark}</div>
 
-                    <div className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-100 font-medium">
-                      AI Categorized: {item.aiOutput.predictedCategory} ({(item.aiOutput.confidence * 100).toFixed(0)}%)
+                      <div className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-100 font-medium flex items-center justify-between">
+                        <span>AI: {item.aiOutput.predictedCategory} ({(item.aiOutput.confidence * 100).toFixed(0)}%)</span>
+                        <span className="text-slate-500 font-semibold">{isSelected ? '✓ In View on Map' : 'Click to View on Map'}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
 
             <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">

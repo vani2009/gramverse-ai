@@ -10,14 +10,34 @@ const STORAGE_KEYS = {
   INFRASTRUCTURE: 'gramverse_infrastructure_data',
   OFFLINE_QUEUE: 'gramverse_offline_queue',
   ONLINE_STATUS: 'gramverse_online_status',
-  BACKEND_SYNCED: 'gramverse_backend_synced'
+  BACKEND_SYNCED: 'gramverse_backend_synced',
+  DATA_VERSION: 'gramverse_data_version'
 };
+
+const CURRENT_DATA_VERSION = 'v4_ashta_sehore_nov2026';
 
 class StorageService {
   private isBackendReachable: boolean = false;
 
   constructor() {
+    this.ensureFreshVersionData();
     this.checkAndSyncBackend();
+  }
+
+  /** Ensure browser localStorage doesn't hold stale or outdated village/complaint data */
+  private ensureFreshVersionData() {
+    try {
+      const storedVer = localStorage.getItem(STORAGE_KEYS.DATA_VERSION);
+      if (storedVer !== CURRENT_DATA_VERSION) {
+        localStorage.removeItem(STORAGE_KEYS.COMPLAINTS);
+        localStorage.removeItem(STORAGE_KEYS.HOUSEHOLDS);
+        localStorage.removeItem(STORAGE_KEYS.INFRASTRUCTURE);
+        localStorage.removeItem(STORAGE_KEYS.VILLAGE_ID);
+        localStorage.setItem(STORAGE_KEYS.DATA_VERSION, CURRENT_DATA_VERSION);
+      }
+    } catch {
+      // Ignore if localStorage unavailable
+    }
   }
 
   private notifyChange() {

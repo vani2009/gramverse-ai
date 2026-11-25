@@ -70,6 +70,16 @@ export const VillageMap: React.FC<VillageMapProps> = ({
   const [proximityRadius, setProximityRadius] = useState<number>(1000);
   const [, setNearbyResults] = useState<{ count: number; center: [number, number] } | null>(null);
 
+  // Sync village and initialBlock prop changes
+  useEffect(() => {
+    if (village && village.id) {
+      setSelectedVillageId(village.id);
+    }
+    if (village && village.block) {
+      setSelectedBlock(village.block);
+    }
+  }, [village?.id, village?.block]);
+
   // Sync initialBlock prop changes
   useEffect(() => {
     if (initialBlock) {
@@ -116,16 +126,47 @@ export const VillageMap: React.FC<VillageMapProps> = ({
     return blockMatches && villageMatches;
   });
 
-  // Helper to create custom HTML markers
+  // Helper to create custom HTML markers matching the map legend
   const createCustomIcon = (type: 'complaint' | 'infra', category: string, priority?: number) => {
-    let bgColor = '#3b82f6';
-    let iconLetter = 'I';
+    let bgColor = '#0284c7';
+    let iconLetter = '📍';
+    let isCritical = false;
 
     if (type === 'complaint') {
-      if (priority && priority >= 3000) bgColor = '#ef4444'; // Red for Critical
-      else if (priority && priority >= 1500) bgColor = '#f97316'; // Orange for High
-      else bgColor = '#eab308'; // Amber for Moderate
+      isCritical = !!(priority && priority >= 3000);
+      bgColor = isCritical ? '#ef4444' : '#f97316'; // 🔴 Red for Critical (>3000), 🟠 Orange for Active
       iconLetter = '!';
+
+      return L.divIcon({
+        className: 'custom-leaflet-marker custom-problem-marker',
+        html: `
+          <div style="
+            background-color: ${bgColor};
+            width: ${isCritical ? '36px' : '30px'};
+            height: ${isCritical ? '36px' : '30px'};
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: ${isCritical ? '0 0 0 5px rgba(239, 68, 68, 0.45), 0 4px 12px rgba(0,0,0,0.45)' : '0 0 0 3px rgba(249, 115, 22, 0.4), 0 3px 8px rgba(0,0,0,0.35)'};
+            border: 2.5px solid white;
+            cursor: pointer;
+            transition: transform 0.15s ease-in-out;
+          ">
+            <span style="
+              transform: rotate(45deg);
+              font-size: ${isCritical ? '15px' : '13px'};
+              font-weight: 900;
+              color: white;
+              text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            ">${iconLetter}</span>
+          </div>
+        `,
+        iconSize: isCritical ? [36, 36] : [30, 30],
+        iconAnchor: isCritical ? [18, 36] : [15, 30],
+        popupAnchor: [0, isCritical ? -36 : -30]
+      });
     } else {
       switch (category.toLowerCase()) {
         case 'water tank':
@@ -135,7 +176,7 @@ export const VillageMap: React.FC<VillageMapProps> = ({
           iconLetter = '💧';
           break;
         case 'school':
-          bgColor = '#8b5cf6';
+          bgColor = '#7c3aed';
           iconLetter = '🏫';
           break;
         case 'health sub-center':
@@ -151,44 +192,41 @@ export const VillageMap: React.FC<VillageMapProps> = ({
           break;
         case 'road':
         case 'road stretches':
-          bgColor = '#64748b';
+          bgColor = '#475569';
           iconLetter = '🛣️';
           break;
         default:
-          bgColor = '#10b981';
+          bgColor = '#0284c7';
           iconLetter = '📍';
       }
-    }
 
-    return L.divIcon({
-      className: 'custom-leaflet-marker',
-      html: `
-        <div style="
-          background-color: ${bgColor};
-          width: 32px;
-          height: 32px;
-          border-radius: 50% 50% 50% 0;
-          transform: rotate(-45deg);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-          border: 2px solid white;
-          cursor: pointer;
-        ">
-          <span style="
-            transform: rotate(45deg);
-            font-size: 13px;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-          ">${iconLetter}</span>
-        </div>
-      `,
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32]
-    });
+      return L.divIcon({
+        className: 'custom-leaflet-marker custom-infra-marker',
+        html: `
+          <div style="
+            background-color: ${bgColor};
+            width: 26px;
+            height: 26px;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            border: 2px solid white;
+            cursor: pointer;
+          ">
+            <span style="
+              transform: rotate(45deg);
+              font-size: 11px;
+            ">${iconLetter}</span>
+          </div>
+        `,
+        iconSize: [26, 26],
+        iconAnchor: [13, 26],
+        popupAnchor: [0, -26]
+      });
+    }
   };
 
   // Perform PostGIS radius search on map click
@@ -317,7 +355,7 @@ export const VillageMap: React.FC<VillageMapProps> = ({
 
     boundariesGroup.clearLayers();
 
-    // Draw boundary perimeter circles and labels for active villages in scope
+    // Draw boundary perimeter circles for active villages in scope
     blockVillages.forEach(v => {
       if (selectedVillageId !== 'all' && v.id !== selectedVillageId) return;
 
@@ -330,29 +368,32 @@ export const VillageMap: React.FC<VillageMapProps> = ({
         weight: 2
       }).addTo(boundariesGroup);
 
-      // Label at center
-      const labelIcon = L.divIcon({
-        className: 'village-label-marker',
-        html: `
-          <div style="
-            background: rgba(255, 255, 255, 0.92);
-            padding: 2px 8px;
-            border-radius: 9999px;
-            font-size: 11px;
-            font-weight: 700;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-            white-space: nowrap;
-            transform: translate(-50%, -50%);
-          ">
-            🏡 ${v.name} GP (${v.block} Block)
-          </div>
-        `,
-        iconSize: [0, 0]
-      });
+      // Clean label without house symbol (only displayed in multi-village overview)
+      if (selectedVillageId === 'all') {
+        const labelIcon = L.divIcon({
+          className: 'village-label-marker',
+          html: `
+            <div style="
+              background: rgba(255, 255, 255, 0.95);
+              padding: 2px 8px;
+              border-radius: 9999px;
+              font-size: 11px;
+              font-weight: 700;
+              color: #065f46;
+              border: 1px solid #a7f3d0;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+              white-space: nowrap;
+              transform: translate(-50%, -50%);
+              pointer-events: none;
+            ">
+              ${v.name} GP
+            </div>
+          `,
+          iconSize: [0, 0]
+        });
 
-      L.marker(v.center, { icon: labelIcon }).addTo(boundariesGroup);
+        L.marker(v.center, { icon: labelIcon }).addTo(boundariesGroup);
+      }
     });
 
     // Adjust map viewport smoothly
@@ -384,7 +425,15 @@ export const VillageMap: React.FC<VillageMapProps> = ({
         const vMatch = villageList.find(v => v.id === asset.villageId);
         const blockName = vMatch ? vMatch.block : 'Block';
         const icon = createCustomIcon('infra', asset.type);
-        const marker = L.marker([asset.location.lat, asset.location.lng], { icon });
+        const marker = L.marker([asset.location.lat, asset.location.lng], { 
+          icon,
+          zIndexOffset: 200
+        });
+
+        marker.bindTooltip(`🔵 ${asset.type}: ${asset.name}`, { 
+          direction: 'top', 
+          offset: [0, -26] 
+        });
 
         const popupContent = `
           <div style="font-family: inherit; min-width: 220px; font-size: 12px;">
@@ -417,42 +466,53 @@ export const VillageMap: React.FC<VillageMapProps> = ({
       });
     }
 
-    // 2. Plot Citizen Problems & Grievances
+    // 2. Plot Citizen Problems & Grievances (Prominent 🔴 Critical and 🟠 Active markers)
     if (filterLayer.showComplaints) {
       displayedComplaints.forEach(cmp => {
         if (!filterLayer.showResolved && cmp.status === 'Resolved') return;
 
         const vMatch = villageList.find(v => v.id === cmp.villageId);
         const blockName = vMatch ? vMatch.block : 'Block';
-        const icon = createCustomIcon('complaint', cmp.category, cmp.priorityScore);
-        const marker = L.marker([cmp.location.lat, cmp.location.lng], { icon });
-
         const isCritical = cmp.priorityScore >= 3000;
+        const icon = createCustomIcon('complaint', cmp.category, cmp.priorityScore);
+        const marker = L.marker([cmp.location.lat, cmp.location.lng], { 
+          icon,
+          zIndexOffset: isCritical ? 1500 : 1000
+        });
+
+        // Hover tooltip for quick preview
+        marker.bindTooltip(
+          isCritical
+            ? `🔴 Critical Problem: ${cmp.title} (Score: ${cmp.priorityScore})`
+            : `🟠 Active Problem: ${cmp.title} (Score: ${cmp.priorityScore})`,
+          { direction: 'top', offset: [0, isCritical ? -36 : -30] }
+        );
+
         const popupContent = `
-          <div style="font-family: inherit; min-width: 240px; font-size: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <span style="background: #fee2e2; color: #b91c1c; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 800; letter-spacing: 0.3px;">
-                ⚠️ PROBLEM: ${cmp.category}
+          <div style="font-family: inherit; min-width: 250px; font-size: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+              <span style="background: ${isCritical ? '#fee2e2' : '#ffedd5'}; color: ${isCritical ? '#b91c1c' : '#c2410c'}; font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: 800; letter-spacing: 0.3px; border: 1px solid ${isCritical ? '#fca5a5' : '#fed7aa'};">
+                ${isCritical ? '🔴 CRITICAL PROBLEM' : '🟠 ACTIVE PROBLEM'}: ${cmp.category}
               </span>
               <span style="font-size: 11px; font-weight: 800; color: ${isCritical ? '#dc2626' : '#d97706'};">
-                Score: ${cmp.priorityScore} (Sev: ${cmp.severity}/5)
+                Score: ${cmp.priorityScore}
               </span>
             </div>
-            <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">
+            <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 2px; line-height: 1.3;">
               ${cmp.title}
             </div>
             <div style="font-size: 11px; font-weight: 600; color: #047857; margin-bottom: 3px;">
               📍 ${cmp.villageName} GP (${blockName} Block)
             </div>
-            <div style="font-size: 11px; color: #475569; margin-bottom: 6px;">
+            <div style="font-size: 11px; color: #475569; margin-bottom: 5px;">
               ${cmp.location.landmark}
             </div>
-            <div style="font-size: 11px; color: #334155; margin-bottom: 6px; line-height: 1.4;">
+            <div style="font-size: 11px; color: #334155; margin-bottom: 6px; line-height: 1.4; background: #f8fafc; padding: 5px 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
               ${cmp.description}
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 4px; font-size: 11px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 5px; font-size: 11px;">
               <span>Status: <strong style="color: ${cmp.status === 'Resolved' ? '#16a34a' : '#d97706'};">${cmp.status}</strong></span>
-              <span style="color: #64748b;">Pop: ${cmp.affectedPopulation}</span>
+              <span style="color: #475569;">Affected: <strong>${cmp.affectedPopulation} citizens</strong></span>
             </div>
           </div>
         `;
@@ -568,29 +628,35 @@ export const VillageMap: React.FC<VillageMapProps> = ({
         )}
       </div>
 
-      {/* Top Right: Layer Toggles */}
+      {/* Top Right: Layer Toggles & Action */}
       <div className="absolute top-3 right-3 z-[1000] bg-white/95 backdrop-blur-md px-3 py-2 rounded-xl shadow-md border border-slate-200 flex flex-wrap items-center gap-3 text-xs">
         <div className="flex items-center gap-1.5 font-semibold text-slate-700">
           <Layers className="w-3.5 h-3.5 text-emerald-600" />
           <span className="hidden sm:inline">Layers:</span>
         </div>
-        <label className="flex items-center gap-1 cursor-pointer select-none">
+        <label className="flex items-center gap-1.5 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={filterLayer.showComplaints}
             onChange={e => setFilterLayer(prev => ({ ...prev, showComplaints: e.target.checked }))}
             className="rounded text-rose-500 focus:ring-0"
           />
-          <span className="text-rose-700 font-bold">Problems ({displayedComplaints.length})</span>
+          <span className="text-rose-700 font-bold flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+            Problems ({displayedComplaints.length})
+          </span>
         </label>
-        <label className="flex items-center gap-1 cursor-pointer select-none">
+        <label className="flex items-center gap-1.5 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={filterLayer.showInfra}
             onChange={e => setFilterLayer(prev => ({ ...prev, showInfra: e.target.checked }))}
             className="rounded text-sky-500 focus:ring-0"
           />
-          <span className="text-sky-700 font-bold">Assets ({displayedInfrastructure.length})</span>
+          <span className="text-sky-700 font-bold flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-sky-500"></span>
+            Assets ({displayedInfrastructure.length})
+          </span>
         </label>
         <label className="flex items-center gap-1 cursor-pointer select-none">
           <input
@@ -601,6 +667,23 @@ export const VillageMap: React.FC<VillageMapProps> = ({
           />
           <span className="text-slate-600 font-medium hidden sm:inline">Resolved</span>
         </label>
+
+        {displayedComplaints.length > 0 && (
+          <button
+            onClick={() => {
+              const map = mapInstanceRef.current;
+              if (!map || displayedComplaints.length === 0) return;
+              const points = displayedComplaints.map(c => [c.location.lat, c.location.lng] as [number, number]);
+              const bounds = L.latLngBounds(points);
+              map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
+            }}
+            className="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold border border-rose-200 transition text-[11px] flex items-center gap-1"
+            title="Fit map view to all displayed problems"
+          >
+            <MapPin className="w-3 h-3 text-rose-600" />
+            <span>Fit Problems</span>
+          </button>
+        )}
       </div>
 
       {/* Title Badge (optional) */}
