@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Top Demo Bar / Role Switcher Header */}
       <div className="bg-slate-900 text-white px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <img src="/emblem.png" alt="GramVerse AI Logo" className="w-5 h-5 rounded-full object-cover ring-1 ring-emerald-400/60" />
           <span className="font-bold text-slate-200 tracking-wide">GRAMVERSE AI</span>
           <span className="text-slate-400 hidden sm:inline">|</span>
           <span className="text-slate-300 hidden sm:inline">Role-Based Village Governance & AI Platform</span>
@@ -202,11 +202,13 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Main Navigation Row */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => onTabChange(currentRole === 'citizen' ? 'home' : 'dashboard')}>
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 font-black text-lg">
-              GV
-            </div>
-            <div>
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => onTabChange(currentRole === 'citizen' ? 'home' : 'dashboard')}>
+            <img 
+              src="/logo.jpg" 
+              alt="GramVerse AI Logo" 
+              className="h-10 w-auto rounded-xl object-contain shadow-xs border border-slate-700/60 bg-[#17232b] px-1 py-0.5 group-hover:scale-105 transition duration-150"
+            />
+            <div className="hidden sm:block">
               <div className="font-extrabold text-base text-slate-900 tracking-tight leading-none flex items-center gap-1.5">
                 <span>GramVerse</span>
                 <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded-sm">

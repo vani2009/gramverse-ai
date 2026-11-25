@@ -74,8 +74,8 @@ export const GramBotChat: React.FC = () => {
       {/* Chat Header */}
       <div className="px-5 py-3.5 bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-inner">
-            <Bot className="w-5 h-5 text-emerald-300" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/20 shadow-inner bg-[#17232b] shrink-0">
+            <img src="/emblem.png" alt="GramBot AI" className="w-full h-full object-cover" />
           </div>
           <div>
             <div className="flex items-center gap-2">

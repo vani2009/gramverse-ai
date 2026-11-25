@@ -26,22 +26,29 @@ export const CitizenHome: React.FC<CitizenHomeProps> = ({ village, onNavigateTab
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-sky-800 via-sky-700 to-emerald-800 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/30 text-sky-100 text-xs font-semibold mb-2 border border-sky-400/30">
-            <Sparkles className="w-3.5 h-3.5 text-sky-300" /> Citizen Jan Seva Portal
+      <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-emerald-950 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-5 border border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <img 
+            src="/logo.jpg" 
+            alt="GramVerse AI Logo" 
+            className="w-24 sm:w-28 h-auto rounded-xl object-contain shadow-md border border-slate-700 bg-[#17232b] p-1 shrink-0 self-start sm:self-auto" 
+          />
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold mb-2 border border-emerald-400/30">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" /> Citizen Jan Seva Portal
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight">
+              Namaste, Rameshwar Lal Gurjar
+            </h1>
+            <p className="text-xs text-slate-300 mt-1">
+              Ward 3, {village.name} Gram Panchayat • Direct access to village schemes, complaint tracking & GramBot AI.
+            </p>
           </div>
-          <h1 className="text-2xl font-black tracking-tight">
-            Namaste, Rameshwar Lal Gurjar
-          </h1>
-          <p className="text-xs text-sky-100/90 mt-1">
-            Ward 3, {village.name} Gram Panchayat • Direct access to village schemes, complaint tracking & GramBot AI.
-          </p>
         </div>
 
         <button
           onClick={() => onNavigateTab('submit')}
-          className="px-5 py-2.5 rounded-xl bg-white text-sky-900 font-bold text-xs hover:bg-sky-50 transition shadow-xs flex items-center gap-2 self-start md:self-auto"
+          className="px-5 py-2.5 rounded-xl bg-white text-slate-900 font-bold text-xs hover:bg-emerald-50 transition shadow-xs flex items-center gap-2 self-start md:self-auto shrink-0"
         >
           <FilePlus className="w-4 h-4 text-emerald-600" /> Lodge Grievance
         </button>
