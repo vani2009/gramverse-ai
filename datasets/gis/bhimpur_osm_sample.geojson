@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bhimpur Main Chauraha Streetlight Cluster",
+        "type": "streetlight",
+        "condition_status": "needs_repair",
+        "village_name": "Bhimpur",
+        "osm_id": "node/91002341",
+        "solar_powered": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.6219, 21.8422]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bhimpur-Betul Connecting MDR Segment",
+        "type": "road",
+        "condition_status": "operational",
+        "village_name": "Bhimpur",
+        "osm_id": "way/4412098",
+        "surface": "asphalt"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [77.6150, 21.8380],
+          [77.6215, 21.8420],
+          [77.6280, 21.8465]
+        ]
+      }
+    }
+  ]
+}
