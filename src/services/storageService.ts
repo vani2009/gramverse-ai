@@ -14,7 +14,7 @@ const STORAGE_KEYS = {
   DATA_VERSION: 'gramverse_data_version'
 };
 
-const CURRENT_DATA_VERSION = 'v4_ashta_sehore_nov2026';
+const CURRENT_DATA_VERSION = 'v5_sehore_school_health_water_tank';
 
 class StorageService {
   private isBackendReachable: boolean = false;

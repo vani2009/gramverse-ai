@@ -1089,17 +1089,17 @@ export const MOCK_INFRASTRUCTURE: InfrastructureAsset[] = [
     id: 'inf_bha_001',
     villageId: 'vil_bhaunra',
     villageName: 'Bhaunra',
-    name: 'Bhaunra Gram Panchayat Bhavan',
+    name: 'Govt Middle School Bhaunra',
     type: 'School',
     condition: 'Good',
     location: {
-      lat: 23.0452,
-      lng: 76.8448,
-      description: 'Bhaunra Village Center'
+      lat: 23.0458,
+      lng: 76.8455,
+      description: 'Bhaunra Village School Campus'
     },
-    installYear: 2016,
+    installYear: 2014,
     lastInspected: '2026-10-25',
-    beneficiariesCount: 1100
+    beneficiariesCount: 420
   },
   {
     id: 'inf_bha_002',
@@ -1116,6 +1116,38 @@ export const MOCK_INFRASTRUCTURE: InfrastructureAsset[] = [
     installYear: 2020,
     lastInspected: '2026-11-08',
     beneficiariesCount: 520
+  },
+  {
+    id: 'inf_bha_003',
+    villageId: 'vil_bhaunra',
+    villageName: 'Bhaunra',
+    name: 'Bhaunra JJM Overhead Water Reservoir (80 KL)',
+    type: 'Water Tank',
+    condition: 'Good',
+    location: {
+      lat: 23.0460,
+      lng: 76.8442,
+      description: 'Panchayat Water Works Yard'
+    },
+    installYear: 2022,
+    lastInspected: '2026-11-12',
+    beneficiariesCount: 1650
+  },
+  {
+    id: 'inf_bha_004',
+    villageId: 'vil_bhaunra',
+    villageName: 'Bhaunra',
+    name: 'Bhaunra Primary Health Sub-Center & Clinic',
+    type: 'Health Sub-Center',
+    condition: 'Good',
+    location: {
+      lat: 23.0435,
+      lng: 76.8432,
+      description: 'Ward 2 Health Facility Lane'
+    },
+    installYear: 2017,
+    lastInspected: '2026-10-18',
+    beneficiariesCount: 1300
   },
 
   // Lasudiya Khas Infrastructure (Ashta Block, Sehore District)
@@ -1198,5 +1230,21 @@ export const MOCK_INFRASTRUCTURE: InfrastructureAsset[] = [
     installYear: 2021,
     lastInspected: '2026-11-18',
     beneficiariesCount: 540
+  },
+  {
+    id: 'inf_las_006',
+    villageId: 'vil_lasudiya',
+    villageName: 'Lasudiya Khas',
+    name: 'Lasudiya Khas JJM Overhead Water Tank (75 KL)',
+    type: 'Water Tank',
+    condition: 'Good',
+    location: {
+      lat: 23.0182,
+      lng: 76.7835,
+      description: 'JJM Water Supply Compound'
+    },
+    installYear: 2023,
+    lastInspected: '2026-11-14',
+    beneficiariesCount: 1720
   }
 ];

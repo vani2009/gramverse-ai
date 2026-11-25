@@ -168,63 +168,63 @@ export const VillageMap: React.FC<VillageMapProps> = ({
         popupAnchor: [0, isCritical ? -36 : -30]
       });
     } else {
-      switch (category.toLowerCase()) {
-        case 'water tank':
-        case 'water_tank':
-        case 'handpump':
-          bgColor = '#0284c7';
-          iconLetter = '💧';
-          break;
-        case 'school':
-          bgColor = '#7c3aed';
-          iconLetter = '🏫';
-          break;
-        case 'health sub-center':
-        case 'health_center':
-          bgColor = '#e11d48';
-          iconLetter = '🏥';
-          break;
-        case 'solar streetlight':
-        case 'streetlight':
-        case 'transformer':
-          bgColor = '#f59e0b';
-          iconLetter = '⚡';
-          break;
-        case 'road':
-        case 'road stretches':
-          bgColor = '#475569';
-          iconLetter = '🛣️';
-          break;
-        default:
-          bgColor = '#0284c7';
-          iconLetter = '📍';
+      const cat = category.toLowerCase();
+      const isSchool = cat.includes('school');
+      const isHealth = cat.includes('health') || cat.includes('clinic') || cat.includes('hospital');
+      const isWater = cat.includes('water') || cat.includes('tank') || cat.includes('reservoir') || cat.includes('handpump');
+
+      if (isSchool) {
+        bgColor = '#7c3aed'; // Purple for School
+        iconLetter = '🏫';
+      } else if (isHealth) {
+        bgColor = '#e11d48'; // Crimson/Rose for Health Center
+        iconLetter = '🏥';
+      } else if (isWater) {
+        bgColor = '#0284c7'; // Sky Blue for Water Tank / Reservoir
+        iconLetter = '💧';
+      } else if (cat.includes('light') || cat.includes('solar') || cat.includes('transformer') || cat.includes('power')) {
+        bgColor = '#f59e0b';
+        iconLetter = '⚡';
+      } else if (cat.includes('road')) {
+        bgColor = '#475569';
+        iconLetter = '🛣️';
+      } else {
+        bgColor = '#0284c7';
+        iconLetter = '📍';
       }
 
+      const isMajorCivic = isSchool || isHealth || isWater;
+      const markerSize = isMajorCivic ? 34 : 26;
+      const iconFontSize = isMajorCivic ? 16 : 11;
+      const anchorSize = isMajorCivic ? 17 : 13;
+
       return L.divIcon({
-        className: 'custom-leaflet-marker custom-infra-marker',
+        className: `custom-leaflet-marker custom-infra-marker ${isMajorCivic ? 'custom-major-civic-marker' : ''}`,
         html: `
           <div style="
             background-color: ${bgColor};
-            width: 26px;
-            height: 26px;
+            width: ${markerSize}px;
+            height: ${markerSize}px;
             border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: ${isMajorCivic ? '0 0 0 3px rgba(255, 255, 255, 0.9), 0 3px 10px rgba(0,0,0,0.35)' : '0 2px 6px rgba(0,0,0,0.25)'};
             border: 2px solid white;
             cursor: pointer;
+            transition: transform 0.15s ease-in-out;
           ">
             <span style="
               transform: rotate(45deg);
-              font-size: 11px;
+              font-size: ${iconFontSize}px;
+              line-height: 1;
             ">${iconLetter}</span>
           </div>
         `,
-        iconSize: [26, 26],
-        iconAnchor: [13, 26],
-        popupAnchor: [0, -26]
+        iconSize: [markerSize, markerSize],
+        iconAnchor: [anchorSize, markerSize],
+        popupAnchor: [0, -markerSize]
       });
     }
   };
@@ -419,27 +419,55 @@ export const VillageMap: React.FC<VillageMapProps> = ({
 
     markersGroup.clearLayers();
 
-    // 1. Plot Civic Infrastructure Assets
+    // 1. Plot Civic Infrastructure Assets (School 🏫, Health Center 🏥, Water Tank 💧, etc.)
     if (filterLayer.showInfra) {
       displayedInfrastructure.forEach(asset => {
         const vMatch = villageList.find(v => v.id === asset.villageId);
         const blockName = vMatch ? vMatch.block : 'Block';
+        const cat = asset.type.toLowerCase();
+        const isSchool = cat.includes('school');
+        const isHealth = cat.includes('health') || cat.includes('clinic') || cat.includes('hospital');
+        const isWater = cat.includes('water') || cat.includes('tank') || cat.includes('reservoir') || cat.includes('handpump');
+        const isMajorCivic = isSchool || isHealth || isWater;
+
         const icon = createCustomIcon('infra', asset.type);
         const marker = L.marker([asset.location.lat, asset.location.lng], { 
           icon,
-          zIndexOffset: 200
+          zIndexOffset: isMajorCivic ? 700 : 200
         });
 
-        marker.bindTooltip(`🔵 ${asset.type}: ${asset.name}`, { 
+        let tooltipText = `🔵 ${asset.type}: ${asset.name}`;
+        let badgeText = `🔵 ${asset.type.toUpperCase()}`;
+        let badgeColor = '#0284c7';
+        let badgeBg = '#e0f2fe';
+
+        if (isSchool) {
+          tooltipText = `🏫 School: ${asset.name}`;
+          badgeText = '🏫 SCHOOL';
+          badgeColor = '#6d28d9';
+          badgeBg = '#ede9fe';
+        } else if (isHealth) {
+          tooltipText = `🏥 Health Center: ${asset.name}`;
+          badgeText = '🏥 HEALTH CENTER';
+          badgeColor = '#be123c';
+          badgeBg = '#ffe4e6';
+        } else if (isWater) {
+          tooltipText = `💧 Water Tank: ${asset.name}`;
+          badgeText = '💧 WATER TANK';
+          badgeColor = '#0369a1';
+          badgeBg = '#e0f2fe';
+        }
+
+        marker.bindTooltip(tooltipText, { 
           direction: 'top', 
-          offset: [0, -26] 
+          offset: [0, isMajorCivic ? -34 : -26] 
         });
 
         const popupContent = `
-          <div style="font-family: inherit; min-width: 220px; font-size: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
-              <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 800; color: #0284c7;">
-                ${asset.type}
+          <div style="font-family: inherit; min-width: 230px; font-size: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 800; color: ${badgeColor}; background: ${badgeBg}; padding: 2px 7px; border-radius: 6px;">
+                ${badgeText}
               </span>
               <span style="background: ${asset.condition === 'Good' ? '#dcfce7' : '#fee2e2'}; color: ${asset.condition === 'Good' ? '#15803d' : '#b91c1c'}; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">
                 ${asset.condition}
@@ -655,7 +683,7 @@ export const VillageMap: React.FC<VillageMapProps> = ({
           />
           <span className="text-sky-700 font-bold flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-sky-500"></span>
-            Assets ({displayedInfrastructure.length})
+            Civic (🏫 🏥 💧 {displayedInfrastructure.length})
           </span>
         </label>
         <label className="flex items-center gap-1 cursor-pointer select-none">
@@ -694,8 +722,8 @@ export const VillageMap: React.FC<VillageMapProps> = ({
       )}
 
       {/* Legend Badge Bottom Left */}
-      <div className="absolute bottom-4 left-4 z-[1000] bg-white/95 backdrop-blur-md px-3 py-2 rounded-xl shadow-md border border-slate-200 text-[11px] text-slate-600 space-y-1">
-        <div className="font-bold text-slate-800 flex items-center gap-1.5 mb-1">
+      <div className="absolute bottom-4 left-4 z-[1000] bg-white/95 backdrop-blur-md px-3.5 py-2.5 rounded-xl shadow-md border border-slate-200 text-[11px] text-slate-700 space-y-1.5">
+        <div className="font-bold text-slate-900 flex items-center gap-1.5 mb-1 pb-1 border-b border-slate-100">
           <Globe2 className="w-3.5 h-3.5 text-emerald-600" />
           <span>
             {selectedBlock === 'all'
@@ -704,16 +732,17 @@ export const VillageMap: React.FC<VillageMapProps> = ({
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
-          <span>Critical Problem / Grievance (Score &gt; 3000)</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block shadow-xs"></span>
+          <span>🔴 Critical Problem (Score &gt; 3000)</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-          <span>Active Problem / Grievance</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block shadow-xs"></span>
+          <span>🟠 Active Problem / Grievance</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-sky-600 inline-block"></span>
-          <span>Civic Infrastructure (Water, School, Health, Roads, Power)</span>
+        <div className="pt-1.5 mt-1 border-t border-slate-200/80 grid grid-cols-3 gap-1.5 font-bold text-slate-800 text-[11px]">
+          <span className="flex items-center gap-1">🏫 School</span>
+          <span className="flex items-center gap-1">🏥 Health Center</span>
+          <span className="flex items-center gap-1">💧 Water Tank</span>
         </div>
       </div>
 

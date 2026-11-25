@@ -267,13 +267,13 @@ INITIAL_INFRASTRUCTURE = [
     # Bhaunra Assets (Village ID 4)
     {
         "village_id": 4,
-        "name": "Bhaunra Gram Panchayat Bhavan",
+        "name": "Govt Middle School Bhaunra",
         "type": "school",
         "condition_status": "operational",
-        "latitude": 23.0452,
-        "longitude": 76.8448,
-        "capacity_or_size": "Panchayat Complex",
-        "extra_data": {"beneficiaries": 1100, "source": "survey"},
+        "latitude": 23.0458,
+        "longitude": 76.8455,
+        "capacity_or_size": "8 Classrooms",
+        "extra_data": {"beneficiaries": 420, "source": "survey"},
     },
     {
         "village_id": 4,
@@ -284,6 +284,26 @@ INITIAL_INFRASTRUCTURE = [
         "longitude": 76.8438,
         "capacity_or_size": "Standpost",
         "extra_data": {"beneficiaries": 520, "source": "survey"},
+    },
+    {
+        "village_id": 4,
+        "name": "Bhaunra JJM Overhead Water Reservoir (80 KL)",
+        "type": "water_tank",
+        "condition_status": "operational",
+        "latitude": 23.0460,
+        "longitude": 76.8442,
+        "capacity_or_size": "80,000 Liters",
+        "extra_data": {"beneficiaries": 1650, "source": "survey"},
+    },
+    {
+        "village_id": 4,
+        "name": "Primary Health Sub-Center Bhaunra",
+        "type": "health_center",
+        "condition_status": "operational",
+        "latitude": 23.0435,
+        "longitude": 76.8432,
+        "capacity_or_size": "4 Beds",
+        "extra_data": {"beneficiaries": 1300, "source": "survey"},
     },
     # Lasudiya Khas Assets (Village ID 5, Ashta Block, Sehore)
     {
@@ -305,6 +325,16 @@ INITIAL_INFRASTRUCTURE = [
         "longitude": 76.7810,
         "capacity_or_size": "4 Beds",
         "extra_data": {"beneficiaries": 1850, "source": "survey"},
+    },
+    {
+        "village_id": 5,
+        "name": "Lasudiya Khas JJM Overhead Water Tank (75 KL)",
+        "type": "water_tank",
+        "condition_status": "operational",
+        "latitude": 23.0182,
+        "longitude": 76.7835,
+        "capacity_or_size": "75,000 Liters",
+        "extra_data": {"beneficiaries": 1720, "source": "survey"},
     },
     {
         "village_id": 5,
