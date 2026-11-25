@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowRight,
-  Filter
+  Filter,
+  Globe2
 } from 'lucide-react';
 import {
   BarChart,
@@ -45,8 +46,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onSelectVillage
 }) => {
   const [selectedBlock, setSelectedBlock] = useState<string>('all');
+  const [selectedMapComplaint, setSelectedMapComplaint] = useState<Complaint | null>(null);
   const complaints = storageService.getComplaints();
   const infrastructure = storageService.getInfrastructure();
+  const activeVillage = villages.find(v => v.id === storageService.getSelectedVillageId()) || villages[0];
 
   const filteredVillages = selectedBlock === 'all'
     ? villages
@@ -81,7 +84,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const handleExportReport = () => {
     const reportText = `GRAMVERSE AI - DISTRICT GOVERNANCE & AI ANALYTICS REPORT
 Generated: ${new Date().toLocaleString()}
-District: Jaipur Rural | Total Villages Tracked: ${villages.length}
+District: Sehore & Betul Districts (MP) | Total Villages Tracked: ${villages.length}
 ===================================================================
 Total Block Population: ${totalPopulation.toLocaleString()}
 Total Registered Households: ${totalHouseholds.toLocaleString()}
@@ -116,7 +119,7 @@ AI ENGINE TELEMETRY:
             <Building2 className="w-3.5 h-3.5" /> District & Block Administration Portal
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight">
-            Jaipur Rural District Overview
+            Sehore & Betul Districts Overview
           </h1>
           <p className="text-xs text-indigo-200 mt-1 max-w-xl">
             Multi-village monitoring, comparative infrastructure metrics, AI grievance trends and development rankings across Panchayats.
@@ -246,6 +249,43 @@ AI ENGINE TELEMETRY:
         </div>
       </div>
 
+      {/* District & Block GIS Spatial Problem Map */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-5 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <Globe2 className="w-4 h-4 text-emerald-600" />
+              District & Block GIS Spatial Problem Map
+            </h3>
+            <p className="text-xs text-slate-500">
+              Interactive spatial monitoring of citizen problems, road defects, water outages, and civic assets across blocks.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 font-bold border border-rose-200">
+              {complaints.filter(c => c.status !== 'Resolved').length} Active Problems
+            </span>
+            <span className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold border border-sky-200">
+              {infrastructure.length} Civic Assets
+            </span>
+          </div>
+        </div>
+
+        <VillageMap
+          village={activeVillage}
+          allVillages={villages}
+          complaints={complaints}
+          infrastructure={infrastructure}
+          allowBlockFilter={true}
+          initialBlock={selectedBlock}
+          selectedComplaintId={selectedMapComplaint?.id}
+          onSelectComplaint={cmp => setSelectedMapComplaint(cmp)}
+          onSelectVillage={onSelectVillage}
+          height="500px"
+          title="District Administrative Spatial GIS Engine (MP)"
+        />
+      </div>
+
       {/* Village Ranking & Master Registry */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
@@ -261,9 +301,9 @@ AI ENGINE TELEMETRY:
               onChange={e => setSelectedBlock(e.target.value)}
               className="text-xs font-medium border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white text-slate-700 outline-hidden"
             >
-              <option value="all">All Blocks (Chomu, Amer)</option>
-              <option value="Chomu">Chomu Block</option>
-              <option value="Amer">Amer Block</option>
+              <option value="all">All Blocks (Ashta, Bhimpur)</option>
+              <option value="Ashta">Ashta Block (Sehore District)</option>
+              <option value="Bhimpur">Bhimpur Block (Betul District)</option>
             </select>
           </div>
         </div>

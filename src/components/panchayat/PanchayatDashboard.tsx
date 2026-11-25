@@ -27,9 +27,13 @@ export const PanchayatDashboard: React.FC<PanchayatDashboardProps> = ({
   onNavigateTab,
   onSelectComplaintForInspection
 }) => {
-  const complaints = storageService.getComplaints().filter(c => c.villageId === village.id);
+  const allVillages = storageService.getVillages();
+  const allComplaints = storageService.getComplaints();
+  const allInfrastructure = storageService.getInfrastructure();
+
+  const complaints = allComplaints.filter(c => c.villageId === village.id);
   const households = storageService.getHouseholds().filter(h => h.villageId === village.id);
-  const infrastructure = storageService.getInfrastructure().filter(i => i.villageId === village.id);
+  const infrastructure = allInfrastructure.filter(i => i.villageId === village.id);
 
   const [selectedMapComplaint, setSelectedMapComplaint] = useState<Complaint | null>(null);
 
@@ -112,11 +116,15 @@ export const PanchayatDashboard: React.FC<PanchayatDashboardProps> = ({
 
           <VillageMap
             village={village}
-            complaints={complaints}
-            infrastructure={infrastructure}
+            complaints={allComplaints}
+            infrastructure={allInfrastructure}
+            allVillages={allVillages}
+            allowBlockFilter={true}
+            initialBlock={village.block}
             selectedComplaintId={selectedMapComplaint?.id}
             onSelectComplaint={cmp => setSelectedMapComplaint(cmp)}
             height="460px"
+            title={`${village.name} GP & ${village.block} Block Map`}
           />
         </div>
 

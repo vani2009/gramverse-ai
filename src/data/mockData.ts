@@ -424,6 +424,347 @@ export const MOCK_COMPLAINTS: Complaint[] = [
       cvAnalysisSummary: 'Drainage blockage with hygiene hazard in high footfall commercial zone.'
     },
     panchayatRemarks: 'Cleaned by sanitation team on 15 Nov. Cement slabs installed over the open drain.'
+  },
+  // Amlaha Complaints (Ashta Block)
+  {
+    id: 'cmp_aml_001',
+    citizenId: 'usr_citizen_aml_01',
+    citizenName: 'Devendra Meena',
+    citizenPhone: '+91 94251 11223',
+    villageId: 'vil_amlaha',
+    villageName: 'Amlaha',
+    title: 'Burnt pump motor in Amlaha primary drinking borewell',
+    description: 'The 7.5 HP submersible pump installed at Amlaha community tank has burnt due to voltage fluctuations. Over 400 households have had no drinking water supply for 3 days.',
+    category: 'Water',
+    status: 'In Review',
+    priorityScore: 5000.0,
+    severity: 5,
+    affectedPopulation: 400,
+    estimatedCostLakhs: 0.4,
+    location: {
+      lat: 23.0845,
+      lng: 76.8842,
+      landmark: 'Near Amlaha Gram Panchayat Bhavan'
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1584467735871-8e85353a8413?w=600&auto=format&fit=crop&q=80',
+    createdAt: '2026-11-20T08:30:00Z',
+    updatedAt: '2026-11-21T10:15:00Z',
+    aiOutput: {
+      predictedCategory: 'Water',
+      confidence: 0.97,
+      reasoning: 'NLP identified: "submersible pump", "community tank", "voltage fluctuations", "no drinking water". Classified as Water Supply crisis.',
+      modelVersion: 'TF-IDF-LogReg-v1.4',
+      timestamp: '2026-11-20T08:30:05Z',
+      isOverridden: false,
+      cvDetections: [{ label: 'Pump Motor Burnout', confidence: 0.93, description: 'Motor winding burnout and electrical breaker trip' }]
+    },
+    panchayatRemarks: 'Field technician deputed from Ashta tehsil headquarters. Replacement pump en route.'
+  },
+  {
+    id: 'cmp_aml_002',
+    citizenId: 'usr_citizen_aml_02',
+    citizenName: 'Kamal Kishore Rathore',
+    citizenPhone: '+91 98260 22334',
+    villageId: 'vil_amlaha',
+    villageName: 'Amlaha',
+    title: 'Amlaha Mandi approach road shoulder eroded and collapsed',
+    description: 'Heavy grain transport trucks and monsoon water flow have washed away 60 meters of road shoulder near the Krishi Upaj Mandi sub-yard, causing risk of truck overturn.',
+    category: 'Road',
+    status: 'Submitted',
+    priorityScore: 1800.0,
+    severity: 4,
+    affectedPopulation: 450,
+    estimatedCostLakhs: 1.0,
+    location: {
+      lat: 23.0862,
+      lng: 76.8860,
+      landmark: 'Amlaha Mandi Road Curve'
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80',
+    createdAt: '2026-11-21T12:00:00Z',
+    updatedAt: '2026-11-21T12:00:00Z',
+    aiOutput: {
+      predictedCategory: 'Road',
+      confidence: 0.95,
+      reasoning: 'NLP identified terms: "road shoulder", "eroded", "Krishi Upaj Mandi", "truck overturn". Classified under Road Infrastructure.',
+      modelVersion: 'TF-IDF-LogReg-v1.4',
+      timestamp: '2026-11-21T12:00:04Z',
+      isOverridden: false,
+      cvDetections: [{ label: 'Road Shoulder Erosion', confidence: 0.89, description: 'Subgrade washout along outer curve of bituminous carriageway' }]
+    }
+  },
+  {
+    id: 'cmp_aml_003',
+    citizenId: 'usr_citizen_aml_03',
+    citizenName: 'Santosh Malviya',
+    citizenPhone: '+91 97550 33445',
+    villageId: 'vil_amlaha',
+    villageName: 'Amlaha',
+    title: 'Loose low-hanging 11kV electrical wire across farmer fields',
+    description: 'An 11kV agricultural feeder cable has sagged to within 7 feet of the ground across crop fields near Ward 2, posing severe electrocution hazard to farmers and cattle.',
+    category: 'Electricity',
+    status: 'Work Order',
+    priorityScore: 3200.0,
+    severity: 4,
+    affectedPopulation: 240,
+    estimatedCostLakhs: 0.3,
+    location: {
+      lat: 23.0838,
+      lng: 76.8830,
+      landmark: 'Ward 2 Agricultural Field Crossway'
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600&auto=format&fit=crop&q=80',
+    createdAt: '2026-11-19T14:10:00Z',
+    updatedAt: '2026-11-20T09:40:00Z',
+    aiOutput: {
+      predictedCategory: 'Electricity',
+      confidence: 0.96,
+      reasoning: 'NLP identified: "11kV", "electrical wire", "electrocution hazard", "hanging low". High safety hazard under Electricity.',
+      modelVersion: 'TF-IDF-LogReg-v1.4',
+      timestamp: '2026-11-19T14:10:04Z',
+      isOverridden: false,
+      cvDetections: [{ label: 'Sagging Conductor', confidence: 0.94, description: 'Exposed HT conductor below statutory ground clearance' }]
+    },
+    panchayatRemarks: 'Notified MPPKVVCL Ashta division line inspector. Line tensioning scheduled.'
+  },
+
+  // Metwada Complaints (Ashta Block)
+  {
+    id: 'cmp_met_001',
+    citizenId: 'usr_citizen_met_01',
+    citizenName: 'Laxminarayan Verma',
+    citizenPhone: '+91 96300 44556',
+    villageId: 'vil_metwada',
+    villageName: 'Metwada',
+    title: 'Deep borewell dried up in Harijan Basti',
+    description: 'The sole functional community borewell in Metwada Harijan Basti has dried down to silt. Women must walk 1.5 km to nearby farm tubewells.',
+    category: 'Water',
+    status: 'In Review',
+    priorityScore: 4375.0,
+    severity: 5,
+    affectedPopulation: 350,
+    estimatedCostLakhs: 0.4,
+    location: {
+      lat: 23.0618,
+      lng: 76.8005,
+      landmark: 'Harijan Basti Water Point, Metwada'
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1584467735871-8e85353a8413?w=600&auto=format&fit=crop&q=80',
+    createdAt: '2026-11-20T11:00:00Z',
+    updatedAt: '2026-11-21T08:30:00Z',
+    aiOutput: {
+      predictedCategory: 'Water',
+      confidence: 0.98,
+      reasoning: 'NLP identified: "borewell", "dried up", "community well", "silt", "water scarcity". Classified under Water.',
+      modelVersion: 'TF-IDF-LogReg-v1.4',
+      timestamp: '2026-11-20T11:00:03Z',
+      isOverridden: false,
+      cvDetections: [{ label: 'Dry Borewell Discharge', confidence: 0.91, description: 'Zero discharge and sandy discharge sediment' }]
+    }
+  },
+  {
+    id: 'cmp_met_002',
+    citizenId: 'usr_citizen_met_02',
+    citizenName: 'Radheshyam Solanki',
+    citizenPhone: '+91 97520 55667',
+    villageId: 'vil_metwada',
+    villageName: 'Metwada',
+    title: 'Metwada weekly Haat bazaar open sewage accumulation',
+    description: 'Blocked masonry canal overflowing into vegetable vendor area with pungent sewage, creating severe disease outbreak hazard.',
+    category: 'Sanitation',
+    status: 'Submitted',
+    priorityScore: 1560.0,
+    severity: 3,
+    affectedPopulation: 520,
+    estimatedCostLakhs: 1.0,
+    location: {
+      lat: 23.0605,
+      lng: 76.8015,
+      landmark: 'Metwada Haat Bazaar Square'
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1618060932014-4deda4932554?w=600&auto=format&fit=crop&q=80',
+    createdAt: '2026-11-22T09:15:00Z',
+    updatedAt: '2026-11-22T09:15:00Z',
+    aiOutput: {
+      predictedCategory: 'Sanitation',
+      confidence: 0.94,
+      reasoning: 'NLP identified: "sewage", "blocked canal", "vegetable vendor", "disease outbreak". Classified under Sanitation.',
+      modelVersion: 'TF-IDF-LogReg-v1.4',
+      timestamp: '2026-11-22T09:15:03Z',
+      isOverridden: false,
+      cvDetections: [{ label: 'Wastewater Inundation', confidence: 0.88, description: 'Stagnant blackwater pool covering commercial pathway' }]
+    }
+  },
+
+  // Bhaunra Complaints (Ashta Block)
+  {
+    id: 'cmp_bha_001',
+    citizenId: 'usr_citizen_bha_01',
+    citizenName: 'Narendra Singh Thakur',
+    citizenPhone: '+91 98930 66778',
+    villageId: 'vil_bhaunra',
+    villageName: 'Bhaunra',
+    title: 'Bhaunra link road stone culvert broken by heavy trolley',
+    description: 'Stone slab culvert bridging the irrigation drain on Bhaunra main link road has collapsed in the center. Light vehicles are passing on a narrow dangerous edge.',
+    category: 'Road',
+    status: 'In Review',
+    priorityScore: 2470.6,
+    severity: 4,
+    affectedPopulation: 420,
+    estimatedCostLakhs: 0.68,
+    location: {
+      lat: 23.0442,
+      lng: 76.8458,
+      landmark: 'Bhaunra Irrigation Canal Culvert'
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80',
+    createdAt: '2026-11-21T15:20:00Z',
+    updatedAt: '2026-11-22T10:00:00Z',
+    aiOutput: {
+      predictedCategory: 'Road',
+      confidence: 0.95,
+      reasoning: 'NLP identified: "stone slab culvert", "collapsed", "link road", "dangerous edge". Classified as Road defect.',
+      modelVersion: 'TF-IDF-LogReg-v1.4',
+      timestamp: '2026-11-21T15:20:04Z',
+      isOverridden: false,
+      cvDetections: [{ label: 'Structural Culvert Collapse', confidence: 0.96, description: 'Fractured stone lintel with void beneath road surface' }]
+    }
+  },
+  {
+    id: 'cmp_bha_002',
+    citizenId: 'usr_citizen_bha_02',
+    citizenName: 'Manohar Lal Yadav',
+    citizenPhone: '+91 94060 77889',
+    villageId: 'vil_bhaunra',
+    villageName: 'Bhaunra',
+    title: 'Transformer sparking with frequent power cuts in Ward 2',
+    description: 'The 63 kVA transformer near Bhaunra school has severe oil leakage and sparks continuously during evening peak hours, tripping power to 180 homes.',
+    category: 'Electricity',
+    status: 'Submitted',
+    priorityScore: 2160.0,
+    severity: 4,
+    affectedPopulation: 180,
+    estimatedCostLakhs: 0.33,
+    location: {
+      lat: 23.0460,
+      lng: 76.8442,
+      landmark: 'Near Bhaunra Govt School Pole'
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600&auto=format&fit=crop&q=80',
+    createdAt: '2026-11-22T14:40:00Z',
+    updatedAt: '2026-11-22T14:40:00Z',
+    aiOutput: {
+      predictedCategory: 'Electricity',
+      confidence: 0.97,
+      reasoning: 'NLP identified: "transformer", "sparks", "oil leakage", "power cuts". Classified under Electricity.',
+      modelVersion: 'TF-IDF-LogReg-v1.4',
+      timestamp: '2026-11-22T14:40:04Z',
+      isOverridden: false,
+      cvDetections: [{ label: 'Transformer Oil Seepage', confidence: 0.92, description: 'Dielectric fluid leakage on radiator fins' }]
+    }
+  },
+
+  // Bhimpur Complaints (Bhimpur Block, Betul District)
+  {
+    id: 'cmp_bhi_001',
+    citizenId: 'usr_citizen_bhi_01',
+    citizenName: 'Mangal Singh Korku',
+    citizenPhone: '+91 94790 88990',
+    villageId: 'vil_bhimpur',
+    villageName: 'Bhimpur',
+    title: 'Tribal hamlet unpaved forest approach road cut off',
+    description: 'The earthen forest track connecting Korku Tola to Bhimpur main market has washed out with a 4-foot deep trench. Emergency vehicles and milk collection cannot enter.',
+    category: 'Road',
+    status: 'In Review',
+    priorityScore: 3125.0,
+    severity: 5,
+    affectedPopulation: 250,
+    estimatedCostLakhs: 0.4,
+    location: {
+      lat: 21.8425,
+      lng: 77.6205,
+      landmark: 'Korku Tola Forest Boundary Track'
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80',
+    createdAt: '2026-11-19T09:10:00Z',
+    updatedAt: '2026-11-20T11:45:00Z',
+    aiOutput: {
+      predictedCategory: 'Road',
+      confidence: 0.96,
+      reasoning: 'NLP identified: "forest track", "washed out", "trench", "emergency vehicles". Classified under Road Infrastructure.',
+      modelVersion: 'TF-IDF-LogReg-v1.4',
+      timestamp: '2026-11-19T09:10:05Z',
+      isOverridden: false,
+      cvDetections: [{ label: 'Earthen Road Washout', confidence: 0.95, description: 'Gully erosion splitting track width by over 1.2 meters' }]
+    },
+    panchayatRemarks: 'MGNREGA gravel leveling and boulder pitching sanctioned.'
+  },
+  {
+    id: 'cmp_bhi_002',
+    citizenId: 'usr_citizen_bhi_02',
+    citizenName: 'Durgadas Dhurve',
+    citizenPhone: '+91 97130 99001',
+    villageId: 'vil_bhimpur',
+    villageName: 'Bhimpur',
+    title: 'Handpump discharging turbid water with fluoride smell',
+    description: 'Community handpump near Bhimpur Ashram School produces muddy, discolored water with chemical odor. 200 school children and residents are affected.',
+    category: 'Water',
+    status: 'Work Order',
+    priorityScore: 4000.0,
+    severity: 4,
+    affectedPopulation: 300,
+    estimatedCostLakhs: 0.3,
+    location: {
+      lat: 21.8410,
+      lng: 77.6220,
+      landmark: 'Opposite Bhimpur Ashram School'
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1584467735871-8e85353a8413?w=600&auto=format&fit=crop&q=80',
+    createdAt: '2026-11-18T10:30:00Z',
+    updatedAt: '2026-11-19T16:00:00Z',
+    aiOutput: {
+      predictedCategory: 'Water',
+      confidence: 0.95,
+      reasoning: 'NLP identified: "handpump", "turbid water", "fluoride smell", "school children". High urgency Water supply grievance.',
+      modelVersion: 'TF-IDF-LogReg-v1.4',
+      timestamp: '2026-11-18T10:30:04Z',
+      isOverridden: false,
+      cvDetections: [{ label: 'Turbid Water Discharge', confidence: 0.91, description: 'High suspended solids from borehole degradation' }]
+    },
+    panchayatRemarks: 'Water testing kit dispatch arranged. Alternate tanker instructed.'
+  },
+  {
+    id: 'cmp_bhi_003',
+    citizenId: 'usr_citizen_bhi_03',
+    citizenName: 'Smt. Shanti Bai Marskole',
+    citizenPhone: '+91 96850 11223',
+    villageId: 'vil_bhimpur',
+    villageName: 'Bhimpur',
+    title: 'Bhimpur Main Chauraha solar lights batteries dead',
+    description: 'The 3 solar streetlights at Bhimpur main market junction are completely dead for 3 weeks, leaving the market junction in total darkness.',
+    category: 'Electricity',
+    status: 'Submitted',
+    priorityScore: 1944.4,
+    severity: 3,
+    affectedPopulation: 350,
+    estimatedCostLakhs: 0.54,
+    location: {
+      lat: 21.8422,
+      lng: 77.6219,
+      landmark: 'Bhimpur Main Chauraha Market Square'
+    },
+    imageUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600&auto=format&fit=crop&q=80',
+    createdAt: '2026-11-20T17:00:00Z',
+    updatedAt: '2026-11-20T17:00:00Z',
+    aiOutput: {
+      predictedCategory: 'Electricity',
+      confidence: 0.93,
+      reasoning: 'NLP identified: "solar streetlights", "dead batteries", "total darkness", "market junction". Classified under Electricity.',
+      modelVersion: 'TF-IDF-LogReg-v1.4',
+      timestamp: '2026-11-20T17:00:03Z',
+      isOverridden: false,
+      cvDetections: [{ label: 'Dead Solar Luminaire', confidence: 0.92, description: 'Depleted lithium battery unit with non-functional dusk-to-dawn sensor' }]
+    }
   }
 ];
 
@@ -626,5 +967,236 @@ export const MOCK_INFRASTRUCTURE: InfrastructureAsset[] = [
     installYear: 2020,
     lastInspected: '2026-09-25',
     beneficiariesCount: 1400
+  },
+  // Amlaha Infrastructure (Ashta Block)
+  {
+    id: 'inf_aml_001',
+    villageId: 'vil_amlaha',
+    villageName: 'Amlaha',
+    name: 'Amlaha JJM Overhead Water Reservoir (100 KL)',
+    type: 'Water Tank',
+    condition: 'Good',
+    location: {
+      lat: 23.0855,
+      lng: 76.8855,
+      description: 'Near Amlaha Water Works Compound'
+    },
+    installYear: 2022,
+    lastInspected: '2026-11-10',
+    beneficiariesCount: 1850
+  },
+  {
+    id: 'inf_aml_002',
+    villageId: 'vil_amlaha',
+    villageName: 'Amlaha',
+    name: 'Govt Middle School Amlaha',
+    type: 'School',
+    condition: 'Good',
+    location: {
+      lat: 23.0865,
+      lng: 76.8840,
+      description: 'Amlaha Main Village Road'
+    },
+    installYear: 2010,
+    lastInspected: '2026-10-22',
+    beneficiariesCount: 310
+  },
+  {
+    id: 'inf_aml_003',
+    villageId: 'vil_amlaha',
+    villageName: 'Amlaha',
+    name: 'Amlaha 33/11 kV Power Substation',
+    type: 'Transformer',
+    condition: 'Good',
+    location: {
+      lat: 23.0820,
+      lng: 76.8820,
+      description: 'Feeder Substation Road'
+    },
+    installYear: 2019,
+    lastInspected: '2026-09-15',
+    beneficiariesCount: 2980
+  },
+  {
+    id: 'inf_aml_004',
+    villageId: 'vil_amlaha',
+    villageName: 'Amlaha',
+    name: 'Amlaha Health Sub-Center',
+    type: 'Health Sub-Center',
+    condition: 'Good',
+    location: {
+      lat: 23.0848,
+      lng: 76.8868,
+      description: 'Amlaha Village Square'
+    },
+    installYear: 2017,
+    lastInspected: '2026-10-18',
+    beneficiariesCount: 1400
+  },
+
+  // Metwada Infrastructure (Ashta Block)
+  {
+    id: 'inf_met_001',
+    villageId: 'vil_metwada',
+    villageName: 'Metwada',
+    name: 'Metwada Primary Health Sub-Center',
+    type: 'Health Sub-Center',
+    condition: 'Needs Maintenance',
+    location: {
+      lat: 23.0622,
+      lng: 76.8022,
+      description: 'Metwada Main Entrance'
+    },
+    installYear: 2014,
+    lastInspected: '2026-11-05',
+    beneficiariesCount: 1200
+  },
+  {
+    id: 'inf_met_002',
+    villageId: 'vil_metwada',
+    villageName: 'Metwada',
+    name: 'Metwada Govt Primary School',
+    type: 'School',
+    condition: 'Good',
+    location: {
+      lat: 23.0612,
+      lng: 76.8008,
+      description: 'Ward 1 School Lane'
+    },
+    installYear: 2011,
+    lastInspected: '2026-10-12',
+    beneficiariesCount: 220
+  },
+  {
+    id: 'inf_met_003',
+    villageId: 'vil_metwada',
+    villageName: 'Metwada',
+    name: 'Metwada Solar Pump Community Well',
+    type: 'Water Tank',
+    condition: 'Needs Maintenance',
+    location: {
+      lat: 23.0602,
+      lng: 76.8012,
+      description: 'Harijan Basti Water Point'
+    },
+    installYear: 2021,
+    lastInspected: '2026-11-14',
+    beneficiariesCount: 650
+  },
+
+  // Bhaunra Infrastructure (Ashta Block)
+  {
+    id: 'inf_bha_001',
+    villageId: 'vil_bhaunra',
+    villageName: 'Bhaunra',
+    name: 'Bhaunra Gram Panchayat Bhavan',
+    type: 'School',
+    condition: 'Good',
+    location: {
+      lat: 23.0452,
+      lng: 76.8448,
+      description: 'Bhaunra Village Center'
+    },
+    installYear: 2016,
+    lastInspected: '2026-10-25',
+    beneficiariesCount: 1100
+  },
+  {
+    id: 'inf_bha_002',
+    villageId: 'vil_bhaunra',
+    villageName: 'Bhaunra',
+    name: 'Bhaunra JJM Community Water Standpost',
+    type: 'Handpump',
+    condition: 'Needs Maintenance',
+    location: {
+      lat: 23.0448,
+      lng: 76.8438,
+      description: 'Near Bhaunra Temple Square'
+    },
+    installYear: 2020,
+    lastInspected: '2026-11-08',
+    beneficiariesCount: 520
+  },
+
+  // Bhimpur Infrastructure (Bhimpur Block, Betul District)
+  {
+    id: 'inf_bhi_001',
+    villageId: 'vil_bhimpur',
+    villageName: 'Bhimpur',
+    name: 'Bhimpur Tribal Welfare Ashram School',
+    type: 'School',
+    condition: 'Good',
+    location: {
+      lat: 21.8428,
+      lng: 77.6215,
+      description: 'Bhimpur High School Campus'
+    },
+    installYear: 2008,
+    lastInspected: '2026-10-15',
+    beneficiariesCount: 480
+  },
+  {
+    id: 'inf_bhi_002',
+    villageId: 'vil_bhimpur',
+    villageName: 'Bhimpur',
+    name: 'Bhimpur Primary Health Centre (PHC)',
+    type: 'Health Sub-Center',
+    condition: 'Good',
+    location: {
+      lat: 21.8408,
+      lng: 77.6208,
+      description: 'Main Road Hospital Complex'
+    },
+    installYear: 2013,
+    lastInspected: '2026-11-01',
+    beneficiariesCount: 3200
+  },
+  {
+    id: 'inf_bhi_003',
+    villageId: 'vil_bhimpur',
+    villageName: 'Bhimpur',
+    name: 'Bhimpur Main Chauraha Streetlight Cluster',
+    type: 'Solar Streetlight',
+    condition: 'Critical Repair',
+    location: {
+      lat: 21.8422,
+      lng: 77.6219,
+      description: 'Market Junction High Mast'
+    },
+    installYear: 2022,
+    lastInspected: '2026-11-20',
+    beneficiariesCount: 1200
+  },
+  {
+    id: 'inf_bhi_004',
+    villageId: 'vil_bhimpur',
+    villageName: 'Bhimpur',
+    name: 'Bhimpur-Betul Connecting MDR Road Section',
+    type: 'Road Stretches',
+    condition: 'Good',
+    location: {
+      lat: 21.8420,
+      lng: 77.6215,
+      description: 'Major District Road Segment'
+    },
+    installYear: 2019,
+    lastInspected: '2026-09-30',
+    beneficiariesCount: 4500
+  },
+  {
+    id: 'inf_bhi_005',
+    villageId: 'vil_bhimpur',
+    villageName: 'Bhimpur',
+    name: 'Bhimpur Deep Borewell Dual Solar Pump',
+    type: 'Handpump',
+    condition: 'Needs Maintenance',
+    location: {
+      lat: 21.8412,
+      lng: 77.6225,
+      description: 'Opposite Community Hall'
+    },
+    installYear: 2021,
+    lastInspected: '2026-11-18',
+    beneficiariesCount: 680
   }
 ];
