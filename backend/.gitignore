@@ -1,0 +1,28 @@
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environment variables & secrets
+.env
+*.pem
+*.key
+firebase-credentials.json
+
+# Local dev databases & uploads
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+*.log
