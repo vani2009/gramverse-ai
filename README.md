@@ -28,28 +28,45 @@ Built directly in alignment with the **GramVerse AI UI, Frontend & Backend Devel
 
 ---
 
-## 🚀 Running the Project
+## 🚀 Running the Project (One-Click Start)
 
-### Prerequisites
-- Node.js (v18+ or v22+)
-- npm or pnpm
-
-### Quick Start
+### ⚡ One-Click Windows Launcher (Recommended)
+Simply double-click:
 ```bash
-# 1. Navigate to the project directory
-cd "C:\Users\Vani Agarwal\.gemini\antigravity\scratch\gramverse-ai"
+start.bat
+```
+*(or run `.\start.ps1` in PowerShell)*
 
-# 2. Start the Vite development server
-npm run dev
+This automatically:
+1. Verifies/creates the Python virtual environment and installs backend dependencies.
+2. Starts the **FastAPI Backend & PostGIS Database** on `http://localhost:8000`.
+3. Seeds the database with demo villages, PostGIS infrastructure, households, and complaints.
+4. Starts the **React / Vite Frontend Server** on `http://localhost:3000`.
+5. Automatically opens `http://localhost:3000` in your default web browser!
 
-# 3. Open in your browser
-# http://localhost:3000
+To stop both servers anytime with one click, double-click:
+```bash
+stop.bat
+```
+*(or run `.\stop.ps1` in PowerShell)*
+
+---
+
+### Manual Start (Alternative)
+
+**Backend:**
+```bash
+cd backend
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
-### Production Build
+**Frontend:**
 ```bash
-npm run build
-npm run preview
+npm install
+npm run dev
 ```
 
 ---
