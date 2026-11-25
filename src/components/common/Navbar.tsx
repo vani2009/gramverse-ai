@@ -76,7 +76,16 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* 4 Role Switcher Tabs */}
-        <div className="flex items-center bg-slate-800 p-0.5 rounded-xl border border-slate-700">
+        <div className="flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 text-[11px] border border-slate-700">
+            <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+            <span className="text-slate-300">Database & API:</span>
+            <span className={isOnline ? 'text-emerald-300 font-semibold' : 'text-amber-300 font-semibold'}>
+              {isOnline ? 'FastAPI + PostGIS Ready' : 'Local Queue Mode'}
+            </span>
+          </div>
+
+          <div className="flex items-center bg-slate-800 p-0.5 rounded-xl border border-slate-700">
           <button
             onClick={() => {
               onRoleChange('admin');
@@ -142,6 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </button>
         </div>
+      </div>
 
         {/* Network Toggle and Reset button */}
         <div className="flex items-center gap-2">

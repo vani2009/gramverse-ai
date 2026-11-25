@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.database.session import check_db_connection, engine
+from app.database.seed_data import seed_initial_data_if_empty
 from app.models import Base
 from app.routes.auth import router as auth_router
 from app.routes.villages import router as villages_router
@@ -34,6 +35,7 @@ async def lifespan(app: FastAPI):
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
             print(f"[{datetime.now().strftime('%H:%M:%S')}] Database tables verified and ready.")
+            await seed_initial_data_if_empty()
     else:
         print(f"[{datetime.now().strftime('%H:%M:%S')}] Warning: Could not connect to database at {settings.async_database_url}")
     yield

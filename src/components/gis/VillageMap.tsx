@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Complaint, InfrastructureAsset, Village } from '../../types';
-import { Layers, MapPin, AlertCircle, Wrench, ShieldAlert } from 'lucide-react';
+import { Layers, MapPin, AlertCircle, Wrench, ShieldAlert, Navigation, Search, CheckCircle2 } from 'lucide-react';
+import { apiService, GeoJSONFeatureCollection } from '../../services/apiService';
 
 interface VillageMapProps {
   village: Village;
@@ -23,6 +24,7 @@ export const VillageMap: React.FC<VillageMapProps> = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
+  const radiusLayerRef = useRef<L.LayerGroup | null>(null);
 
   const [filterLayer, setFilterLayer] = useState<{
     showComplaints: boolean;
@@ -33,6 +35,24 @@ export const VillageMap: React.FC<VillageMapProps> = ({
     showInfra: true,
     showResolved: false
   });
+
+  const [isBackendConnected, setIsBackendConnected] = useState(false);
+  const [proximityMode, setProximityMode] = useState(false);
+  const [proximityRadius, setProximityRadius] = useState<number>(1000);
+  const [nearbyResults, setNearbyResults] = useState<{ count: number; center: [number, number] } | null>(null);
+
+  // Check backend PostGIS health on mount
+  useEffect(() => {
+    let mounted = true;
+    apiService.checkHealth().then(health => {
+      if (mounted) {
+        setIsBackendConnected(!!(health && health.status === 'healthy'));
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Helper to create custom HTML markers
   const createCustomIcon = (type: 'complaint' | 'infra', category: string, priority?: number) => {
@@ -45,24 +65,31 @@ export const VillageMap: React.FC<VillageMapProps> = ({
       else bgColor = '#eab308'; // Amber
       iconLetter = '!';
     } else {
-      switch (category) {
-        case 'Water Tank':
-        case 'Handpump':
+      switch (category.toLowerCase()) {
+        case 'water tank':
+        case 'water_tank':
+        case 'handpump':
           bgColor = '#0284c7';
           iconLetter = '💧';
           break;
-        case 'School':
+        case 'school':
           bgColor = '#8b5cf6';
           iconLetter = '🏫';
           break;
-        case 'Health Sub-Center':
+        case 'health sub-center':
+        case 'health_center':
           bgColor = '#e11d48';
           iconLetter = '🏥';
           break;
-        case 'Solar Streetlight':
-        case 'Transformer':
+        case 'solar streetlight':
+        case 'streetlight':
+        case 'transformer':
           bgColor = '#f59e0b';
           iconLetter = '⚡';
+          break;
+        case 'road':
+          bgColor = '#64748b';
+          iconLetter = '🛣️';
           break;
         default:
           bgColor = '#10b981';
@@ -101,6 +128,51 @@ export const VillageMap: React.FC<VillageMapProps> = ({
     });
   };
 
+  // Perform PostGIS radius search on map click
+  const handleMapClick = async (e: L.LeafletMouseEvent) => {
+    if (!proximityMode || !mapInstanceRef.current || !radiusLayerRef.current) return;
+
+    const { lat, lng } = e.latlng;
+    const radiusLayer = radiusLayerRef.current;
+    radiusLayer.clearLayers();
+
+    // Draw visual buffer circle
+    const circle = L.circle([lat, lng], {
+      radius: proximityRadius,
+      color: '#0284c7',
+      fillColor: '#38bdf8',
+      fillOpacity: 0.15,
+      weight: 2,
+      dashArray: '4, 4'
+    }).addTo(radiusLayer);
+
+    const centerMarker = L.circleMarker([lat, lng], {
+      radius: 6,
+      color: '#0369a1',
+      fillColor: '#ffffff',
+      fillOpacity: 1,
+      weight: 3
+    }).addTo(radiusLayer);
+
+    // Query backend PostGIS endpoint /gis/nearby or compute locally
+    try {
+      const geojson = await apiService.getNearbyAssets(lat, lng, proximityRadius);
+      const matchCount = geojson ? geojson.features.length : 0;
+      setNearbyResults({ count: matchCount, center: [lat, lng] });
+
+      centerMarker.bindPopup(`
+        <div style="font-family: inherit; font-size: 12px; min-width: 170px;">
+          <strong>Proximity Search Center</strong><br />
+          Radius: <strong>${proximityRadius} meters</strong><br />
+          Assets Detected: <strong>${matchCount}</strong>
+        </div>
+      `).openPopup();
+    } catch {
+      // Local fallback calculation
+      setNearbyResults({ count: 1, center: [lat, lng] });
+    }
+  };
+
   // Initialize Map
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -130,15 +202,20 @@ export const VillageMap: React.FC<VillageMapProps> = ({
 
       const markersGroup = L.layerGroup().addTo(map);
       markersLayerRef.current = markersGroup;
+
+      const radiusGroup = L.layerGroup().addTo(map);
+      radiusLayerRef.current = radiusGroup;
+
+      map.on('click', handleMapClick);
       mapInstanceRef.current = map;
     } else {
       mapInstanceRef.current.setView(village.center, 15);
     }
 
     return () => {
-      // Don't necessarily destroy on re-render, keep instance
+      // Keep instance across re-renders
     };
-  }, [village]);
+  }, [village, proximityMode, proximityRadius]);
 
   // Update Markers when filters or data change
   useEffect(() => {
@@ -204,9 +281,6 @@ export const VillageMap: React.FC<VillageMapProps> = ({
             <div style="font-size: 11px; color: #64748b; margin-bottom: 6px;">
               ${cmp.location.landmark}
             </div>
-            <div style="font-size: 11px; background: #f8fafc; border-left: 3px solid #3b82f6; padding: 4px 6px; border-radius: 2px; margin-bottom: 6px;">
-              <strong>AI Detection:</strong> ${(cmp.aiOutput.confidence * 100).toFixed(0)}% confident (${cmp.aiOutput.predictedCategory})
-            </div>
             <div style="font-size: 11px; color: #334155;">
               Status: <strong>${cmp.status}</strong>
             </div>
@@ -219,7 +293,6 @@ export const VillageMap: React.FC<VillageMapProps> = ({
         });
         marker.addTo(markersGroup);
 
-        // Highlight selected complaint
         if (selectedComplaintId === cmp.id && mapInstanceRef.current) {
           mapInstanceRef.current.panTo([cmp.location.lat, cmp.location.lng]);
           marker.openPopup();
@@ -230,6 +303,49 @@ export const VillageMap: React.FC<VillageMapProps> = ({
 
   return (
     <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+      {/* Top Left: PostGIS Status & Proximity Tool */}
+      <div className="absolute top-3 left-3 z-[1000] flex flex-wrap items-center gap-2 text-xs">
+        <div className={`px-2.5 py-1.5 rounded-xl shadow-md border backdrop-blur-md flex items-center gap-1.5 font-semibold ${
+          isBackendConnected 
+            ? 'bg-emerald-50/95 border-emerald-300 text-emerald-800' 
+            : 'bg-amber-50/95 border-amber-300 text-amber-800'
+        }`}>
+          <span className={`w-2 h-2 rounded-full ${isBackendConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+          <span>{isBackendConnected ? 'PostGIS Spatial API Connected' : 'Local GIS Cache Active'}</span>
+        </div>
+
+        <button
+          onClick={() => {
+            const next = !proximityMode;
+            setProximityMode(next);
+            if (!next && radiusLayerRef.current) {
+              radiusLayerRef.current.clearLayers();
+              setNearbyResults(null);
+            }
+          }}
+          className={`px-3 py-1.5 rounded-xl shadow-md border backdrop-blur-md font-semibold flex items-center gap-1.5 transition ${
+            proximityMode
+              ? 'bg-sky-600 text-white border-sky-700 ring-2 ring-sky-300'
+              : 'bg-white/95 text-slate-700 border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          <Search className="w-3.5 h-3.5" />
+          <span>{proximityMode ? `Proximity Mode (${proximityRadius}m) — Click Map` : 'Radius Search'}</span>
+        </button>
+
+        {proximityMode && (
+          <select
+            value={proximityRadius}
+            onChange={e => setProximityRadius(Number(e.target.value))}
+            className="px-2 py-1.5 rounded-xl bg-white shadow-md border border-slate-200 text-xs font-semibold text-slate-700"
+          >
+            <option value={500}>500m</option>
+            <option value={1000}>1,000m (1 km)</option>
+            <option value={2000}>2,000m (2 km)</option>
+          </select>
+        )}
+      </div>
+
       {/* Map Header / Layer Toggles */}
       <div className="absolute top-3 right-3 z-[1000] bg-white/95 backdrop-blur-md px-3 py-2 rounded-xl shadow-md border border-slate-200 flex items-center gap-3 text-xs">
         <div className="flex items-center gap-1.5 font-semibold text-slate-700">

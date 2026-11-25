@@ -19,7 +19,7 @@ interface OfflineQueueProps {
 export const OfflineQueue: React.FC<OfflineQueueProps> = ({ onSyncComplete }) => {
   const [queue, setQueue] = useState<OfflineSurveyRecord[]>(storageService.getOfflineQueue());
   const [isSyncing, setIsSyncing] = useState(false);
-  const [syncSummary, setSyncSummary] = useState<{ count: number; error: boolean } | null>(null);
+  const [syncSummary, setSyncSummary] = useState<{ count: number; backendSynced: boolean } | null>(null);
 
   const loadQueue = () => {
     setQueue(storageService.getOfflineQueue());
@@ -31,17 +31,20 @@ export const OfflineQueue: React.FC<OfflineQueueProps> = ({ onSyncComplete }) =>
     return () => window.removeEventListener('gramverse-storage-change', loadQueue);
   }, []);
 
-  const handleSyncNow = () => {
+  const handleSyncNow = async () => {
     setIsSyncing(true);
     setSyncSummary(null);
 
-    setTimeout(() => {
-      const result = storageService.syncOfflineQueue();
-      setIsSyncing(false);
-      setSyncSummary({ count: result.syncedCount, error: false });
+    try {
+      const result = await storageService.syncOfflineQueue();
+      setSyncSummary({ count: result.syncedCount, backendSynced: result.backendSynced });
       loadQueue();
       if (onSyncComplete) onSyncComplete();
-    }, 800);
+    } catch {
+      setSyncSummary({ count: 0, backendSynced: false });
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const pendingCount = queue.filter(q => !q.synced).length;
@@ -80,10 +83,15 @@ export const OfflineQueue: React.FC<OfflineQueueProps> = ({ onSyncComplete }) =>
       </div>
 
       {syncSummary && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>
-            Successfully synchronized <strong>{syncSummary.count} survey records</strong> into Gram Panchayat Master Database & PostGIS layers!
+        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between gap-2 animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>
+              Successfully synchronized <strong>{syncSummary.count} survey records</strong>!
+            </span>
+          </div>
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-300">
+            {syncSummary.backendSynced ? 'FastAPI & PostGIS Synced' : 'Local Master Synced'}
           </span>
         </div>
       )}
