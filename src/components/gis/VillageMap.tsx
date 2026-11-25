@@ -560,7 +560,7 @@ export const VillageMap: React.FC<VillageMapProps> = ({
   }, [displayedComplaints, displayedInfrastructure, filterLayer, selectedComplaintId]);
 
   return (
-    <div data-gis-map="true" className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm" style={{ minHeight: height }}>
+    <div data-gis-map="true" translate="no" className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm notranslate" style={{ minHeight: height }}>
       {/* Top Floating Controls Bar - Responsive flex wrapper prevents overlay overlap */}
       <div className="absolute top-2.5 inset-x-2.5 z-[1000] flex flex-wrap items-start justify-between gap-2 pointer-events-none">
         {/* Left Controls: Block, Village, PostGIS status, Buffer Search, optional Title */}

@@ -3,7 +3,8 @@ import {
   SupportedLanguage, 
   SUPPORTED_LANGUAGES, 
   LanguageOption,
-  translateString 
+  translateString,
+  triggerGoogleTranslate 
 } from '../services/translationService';
 
 interface LanguageContextType {
@@ -40,6 +41,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch {
       // ignore
     }
+    triggerGoogleTranslate(lang);
+    // Double trigger after short delay to sync Google combo
+    setTimeout(() => triggerGoogleTranslate(lang), 400);
+    setTimeout(() => triggerGoogleTranslate(lang), 1200);
   };
 
   const t = (key: string, fallback?: string): string => {
@@ -58,6 +63,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
+    // Trigger Google Translate engine
+    triggerGoogleTranslate(language);
+
     if (observerRef.current) {
       observerRef.current.disconnect();
       observerRef.current = null;
@@ -67,7 +75,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (!node) return false;
       const el = node.nodeType === Node.ELEMENT_NODE ? (node as Element) : node.parentElement;
       if (!el) return false;
-      return !!el.closest('[data-gis-map="true"], .leaflet-container, script, style, textarea, input, [data-no-translate="true"]');
+      return !!el.closest('[data-gis-map="true"], .leaflet-container, .notranslate, [translate="no"], script, style, textarea, input, [data-no-translate="true"]');
     };
 
     const processTextNode = (textNode: Text, currentLang: SupportedLanguage) => {
@@ -144,7 +152,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             const target = mutation.target as Text;
             if (!isExcluded(target)) {
               const customNode = target as any;
-              // If node text was changed externally
               if (customNode._originalText !== target.nodeValue) {
                 customNode._originalText = target.nodeValue;
                 if (language !== 'en') {
