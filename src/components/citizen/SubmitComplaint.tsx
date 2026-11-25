@@ -24,7 +24,10 @@ import {
   Languages,
   Volume2,
   Globe,
-  Radio
+  Radio,
+  X,
+  RefreshCw,
+  Image as ImageIcon
 } from 'lucide-react';
 
 interface SubmitComplaintProps {
@@ -82,6 +85,13 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
     confidence: number;
     reasoning: string;
   } | null>(null);
+
+  // Camera & Image Upload state & refs
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const cameraStream = useRef<MediaStream | null>(null);
 
   // Live CV detection state
   const [cvDetections, setCvDetections] = useState<any[]>([]);
@@ -252,6 +262,85 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
       setDetectedLanguage('हिन्दी (Hindi - अनुवादित)');
     }
   };
+
+  // Photo capture and upload handlers
+  const handleImageFile = (file: File) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target?.result as string;
+      setImageUrl(dataUrl);
+      const cvResult = AiService.analyzeImageCV(selectedCategory);
+      setCvDetections(cvResult.detections);
+      setCvSummary(cvResult.summary);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleImageFile(e.target.files[0]);
+    }
+  };
+
+  const openLiveCamera = async () => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+        cameraStream.current = stream;
+        setIsCameraActive(true);
+        setTimeout(() => {
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play();
+          }
+        }, 100);
+        return;
+      } catch (err) {
+        console.warn("Direct webcam access failed, falling back to camera file input:", err);
+      }
+    }
+    // Fallback to native device camera file input
+    if (cameraInputRef.current) {
+      cameraInputRef.current.click();
+    }
+  };
+
+  const captureFromVideo = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      setImageUrl(dataUrl);
+      const cvResult = AiService.analyzeImageCV(selectedCategory);
+      setCvDetections(cvResult.detections);
+      setCvSummary(cvResult.summary);
+    }
+    closeLiveCamera();
+  };
+
+  const closeLiveCamera = () => {
+    if (cameraStream.current) {
+      cameraStream.current.getTracks().forEach(track => track.stop());
+      cameraStream.current = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (cameraStream.current) {
+        cameraStream.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
 
   // Update CV when image or category changes
   const handleSelectSample = (sample: typeof SAMPLE_DEMO_PHOTOS[0]) => {
@@ -611,30 +700,104 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
 
           {/* Photo & GPS Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-            {/* Image upload / preview */}
+            {/* Image upload / preview with Camera & File options */}
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-slate-800">
-                Site Photograph Evidence
+                Site Photograph Evidence <span className="text-slate-400 font-normal">(Take photo or upload from device)</span>
               </label>
+
+              {/* Hidden file & camera inputs */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileInputChange}
+              />
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleFileInputChange}
+              />
+
               {imageUrl ? (
-                <div className="relative rounded-xl overflow-hidden aspect-video border border-slate-200 bg-slate-900">
+                <div className="relative rounded-xl overflow-hidden aspect-video border border-slate-200 bg-slate-900 group shadow-sm">
                   <img src={imageUrl} alt="Uploaded site evidence" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => setImageUrl('')}
-                    className="absolute top-2 right-2 bg-slate-900/80 text-white text-[10px] px-2 py-0.5 rounded hover:bg-slate-900"
-                  >
-                    Remove
-                  </button>
+                  
+                  {/* Floating Action Overlay */}
+                  <div className="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/85 via-black/50 to-transparent flex items-center justify-between text-xs text-white">
+                    <span className="font-semibold text-[11px] flex items-center gap-1 text-emerald-400">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Photo Attached
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={openLiveCamera}
+                        className="px-2 py-1 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur-xs text-[11px] font-medium flex items-center gap-1 transition"
+                        title="Retake photo using camera"
+                      >
+                        <Camera className="w-3 h-3" /> Retake
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-2 py-1 rounded-md bg-white/20 hover:bg-white/30 backdrop-blur-xs text-[11px] font-medium flex items-center gap-1 transition"
+                        title="Choose another photo from files"
+                      >
+                        <Upload className="w-3 h-3" /> Replace
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl('')}
+                        className="px-2 py-1 rounded-md bg-rose-600/80 hover:bg-rose-600 text-[11px] font-medium transition"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <div
-                  onClick={() => handleSelectSample(SAMPLE_DEMO_PHOTOS[0])}
-                  className="border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl p-4 text-center cursor-pointer transition bg-slate-50/50 hover:bg-emerald-50/20"
-                >
-                  <Camera className="w-6 h-6 text-slate-400 mx-auto mb-1" />
-                  <span className="text-xs text-slate-600 block font-medium">Click to attach photo</span>
-                  <span className="text-[10px] text-slate-400">or click a demo preset above</span>
+                <div className="border border-slate-200 rounded-xl p-3 bg-slate-50/70 space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Option 1: Take Photo */}
+                    <button
+                      type="button"
+                      onClick={openLiveCamera}
+                      className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 hover:border-emerald-400 text-emerald-800 transition flex flex-col items-center justify-center gap-1.5 group text-center cursor-pointer shadow-2xs"
+                    >
+                      <div className="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 group-hover:scale-110 transition shadow-2xs">
+                        <Camera className="w-4 h-4" />
+                      </div>
+                      <span className="font-bold text-xs">Take Photo</span>
+                      <span className="text-[10px] text-emerald-600/90 font-medium">Capture via camera</span>
+                    </button>
+
+                    {/* Option 2: Upload Existing Photo */}
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="p-3.5 rounded-xl border border-sky-200 bg-sky-50/60 hover:bg-sky-100/70 hover:border-sky-400 text-sky-800 transition flex flex-col items-center justify-center gap-1.5 group text-center cursor-pointer shadow-2xs"
+                    >
+                      <div className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 group-hover:scale-110 transition shadow-2xs">
+                        <Upload className="w-4 h-4" />
+                      </div>
+                      <span className="font-bold text-xs">Upload Photo</span>
+                      <span className="text-[10px] text-sky-600/90 font-medium">From gallery or files</span>
+                    </button>
+                  </div>
+
+                  <div className="text-center pt-1 border-t border-slate-200/60">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectSample(SAMPLE_DEMO_PHOTOS[0])}
+                      className="text-[11px] font-medium text-slate-500 hover:text-emerald-700 hover:underline inline-flex items-center gap-1"
+                    >
+                      <Sparkles className="w-3 h-3 text-amber-500" /> Or select a sample demo photograph
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -684,6 +847,73 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
             </button>
           </div>
         </form>
+      )}
+
+      {/* Live Camera Viewfinder Modal */}
+      {isCameraActive && (
+        <div className="fixed inset-0 z-[1200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-slate-900 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl max-w-lg w-full space-y-4 p-4 text-white">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                <span className="font-bold text-sm">Live Camera Viewfinder</span>
+              </div>
+              <button
+                type="button"
+                onClick={closeLiveCamera}
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="relative aspect-video rounded-xl overflow-hidden bg-black flex items-center justify-center border border-slate-800">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 pointer-events-none border-2 border-white/20 rounded-xl m-4 flex items-center justify-center">
+                <span className="text-[11px] text-white/70 bg-black/50 px-2.5 py-1 rounded backdrop-blur-xs font-medium">
+                  Center the damaged site in view
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  closeLiveCamera();
+                  fileInputRef.current?.click();
+                }}
+                className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition"
+              >
+                <Upload className="w-3.5 h-3.5" /> Upload from files instead
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={closeLiveCamera}
+                  className="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={captureFromVideo}
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition"
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>Snap Photo</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
