@@ -73,6 +73,7 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
   // Voice-to-Text & Language Identification State
   const [isListening, setIsListening] = useState(false);
   const isListeningRef = useRef(false);
+  const isStoppingRef = useRef(false);
   const [isSpeechActive, setIsSpeechActive] = useState(false);
   const initialTextBeforeRecord = useRef('');
   const micStreamRef = useRef<MediaStream | null>(null);
@@ -126,6 +127,7 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
 
   // Stop Voice Speech Recognition cleanly and immediately
   const stopVoiceRecording = () => {
+    isStoppingRef.current = true;
     isListeningRef.current = false;
     setIsListening(false);
     setIsSpeechActive(false);
@@ -140,9 +142,10 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
         rec.onend = null;
         rec.onspeechstart = null;
         rec.onspeechend = null;
-        rec.abort(); // Immediately kills audio capture and speech recognition pipeline
+        try { rec.abort(); } catch {}
+        try { rec.stop(); } catch {}
       } catch (e) {
-        console.warn("Speech recognition abort error:", e);
+        console.warn("Speech recognition stop error:", e);
       }
     }
 
@@ -155,12 +158,17 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
       } catch (e) {}
       micStreamRef.current = null;
     }
+
+    setTimeout(() => {
+      isStoppingRef.current = false;
+    }, 400);
   };
 
   // Start Voice Speech Recognition
   const startVoiceRecording = () => {
     setSpeechError(null);
     setIsSpeechActive(false);
+    isStoppingRef.current = false;
 
     const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRec) {
@@ -188,13 +196,20 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
       let finalAccumulated = '';
 
       recognition.onstart = () => {
+        if (isStoppingRef.current || !isListeningRef.current) {
+          try { recognition.abort(); } catch {}
+          setIsListening(false);
+          isListeningRef.current = false;
+          return;
+        }
         setIsListening(true);
-        isListeningRef.current = true;
         setSpeechError(null);
       };
 
       recognition.onspeechstart = () => {
-        setIsSpeechActive(true);
+        if (!isStoppingRef.current && isListeningRef.current) {
+          setIsSpeechActive(true);
+        }
       };
 
       recognition.onspeechend = () => {
@@ -202,6 +217,7 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
       };
 
       recognition.onresult = (event: any) => {
+        if (isStoppingRef.current || !isListeningRef.current) return;
         let interimText = '';
 
         for (let i = 0; i < event.results.length; i++) {
@@ -236,8 +252,10 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
 
       recognition.onerror = (err: any) => {
         console.warn('Speech recognition error event:', err.error);
+        if (isStoppingRef.current || !isListeningRef.current || err.error === 'aborted') {
+          return;
+        }
         if (err.error === 'no-speech') {
-          // Natural pause in speaking, do not terminate session
           setIsSpeechActive(false);
           return;
         }
@@ -255,13 +273,10 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
           setSpeechError("Voice recognition connection notice: speak clearly or use the instant voice presets below.");
           return;
         }
-        if (err.error === 'aborted') {
-          return;
-        }
       };
 
       recognition.onend = () => {
-        if (isListeningRef.current) {
+        if (!isStoppingRef.current && isListeningRef.current) {
           try {
             recognition.start();
           } catch {
@@ -271,20 +286,18 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
           }
         } else {
           setIsListening(false);
+          isListeningRef.current = false;
           setIsSpeechActive(false);
         }
       };
 
       recognitionRef.current = recognition;
-      recognition.start();
-      // Optimistically flip state so UI immediately responds to click
-      setIsListening(true);
       isListeningRef.current = true;
+      setIsListening(true);
+      recognition.start();
     } catch (e: any) {
       console.error("SpeechRecognition start error:", e);
-      setIsListening(false);
-      isListeningRef.current = false;
-      setIsSpeechActive(false);
+      stopVoiceRecording();
       setSpeechError("Unable to activate speech recognition. Please verify microphone permission or use the instant voice presets below.");
     }
   };
@@ -661,46 +674,56 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
                 </div>
 
                 {/* Mic Action Button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (isListening) {
+                {isListening ? (
+                  <button
+                    key="mic-stop-action-btn"
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       stopVoiceRecording();
-                    } else {
+                    }}
+                    className="notranslate flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white ring-2 ring-rose-400 ring-offset-1 transition shadow-xs cursor-pointer select-none"
+                    translate="no"
+                    title="Click to stop listening"
+                  >
+                    <Square className="w-3.5 h-3.5 fill-white shrink-0" />
+                    <span className="notranslate" translate="no">Listening... Click to Stop</span>
+                  </button>
+                ) : (
+                  <button
+                    key="mic-start-action-btn"
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       startVoiceRecording();
-                    }
-                  }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition shadow-xs cursor-pointer select-none ${
-                    isListening
-                      ? 'bg-rose-600 hover:bg-rose-700 text-white ring-2 ring-rose-400 ring-offset-1'
-                      : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                  }`}
-                  title={isListening ? 'Click to stop listening' : 'Click and speak in your language'}
-                >
-                  {isListening ? (
-                    <>
-                      <Square className="w-3.5 h-3.5 fill-white" />
-                      <span>Listening... Click to Stop</span>
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="w-3.5 h-3.5" />
-                      <span>Speak in Indian Language (बोलकर बताएं)</span>
-                    </>
-                  )}
-                </button>
+                    }}
+                    className="notranslate flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white transition shadow-xs cursor-pointer select-none"
+                    translate="no"
+                    title="Click and speak in your language"
+                  >
+                    <Mic className="w-3.5 h-3.5 shrink-0" />
+                    <span className="notranslate" translate="no">Speak in Indian Language (बोलकर बताएं)</span>
+                  </button>
+                )}
 
-                {/* Live sound wave indicator */}
+                {/* Live sound wave indicator - also clickable to stop */}
                 {isListening && (
-                  <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-300 text-xs font-semibold text-emerald-900 shadow-2xs animate-in fade-in duration-150">
+                  <div 
+                    onClick={stopVoiceRecording}
+                    className="notranslate flex items-center gap-2 bg-emerald-50 hover:bg-rose-50 px-3 py-1.5 rounded-lg border border-emerald-300 hover:border-rose-300 text-xs font-semibold text-emerald-900 hover:text-rose-900 shadow-2xs transition cursor-pointer select-none animate-in fade-in duration-150"
+                    translate="no"
+                    title="Click to stop recording"
+                  >
                     <div className="flex items-end gap-1 h-3.5">
                       <span className={`w-1 bg-emerald-600 rounded-full transition-all duration-150 ${isSpeechActive ? 'h-3 animate-pulse' : 'h-1.5'}`} />
                       <span className={`w-1.5 bg-emerald-600 rounded-full transition-all duration-150 ${isSpeechActive ? 'h-3.5 animate-bounce' : 'h-2'}`} />
                       <span className={`w-1 bg-emerald-600 rounded-full transition-all duration-150 ${isSpeechActive ? 'h-2.5 animate-pulse' : 'h-1.5'}`} />
                     </div>
-                    <span>{isSpeechActive ? 'Listening to speech...' : 'Microphone ready — speak now'}</span>
+                    <span className="notranslate" translate="no">
+                      {isSpeechActive ? 'Listening to speech...' : 'Microphone ready — speak now'}
+                    </span>
                   </div>
                 )}
               </div>
