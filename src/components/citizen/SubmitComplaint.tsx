@@ -106,23 +106,28 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successSubmitted, setSuccessSubmitted] = useState<Complaint | null>(null);
 
-  // Live NLP categorization and language detection when user types or speaks description
+  // Live NLP categorization and language detection when user types or speaks description (debounced)
   useEffect(() => {
-    if (description.trim().length > 5) {
-      const pred = AiService.classifyComplaintNLP(description);
-      setNlpPrediction(pred);
-      setSelectedCategory(pred.predictedCategory);
+    const timer = setTimeout(() => {
+      const text = description.trim();
+      if (text.length > 5) {
+        const pred = AiService.classifyComplaintNLP(text);
+        setNlpPrediction(pred);
+        setSelectedCategory(pred.predictedCategory);
 
-      // Auto detect Indian language from text
-      const detectedCode = detectIndianLanguageFromText(description);
-      const match = SUPPORTED_LANGUAGES.find(l => l.code === detectedCode);
-      if (match) {
-        setDetectedLanguage(`${match.nativeName} (${match.name})`);
+        // Auto detect Indian language from text
+        const detectedCode = detectIndianLanguageFromText(text);
+        const match = SUPPORTED_LANGUAGES.find(l => l.code === detectedCode);
+        if (match) {
+          setDetectedLanguage(`${match.nativeName} (${match.name})`);
+        }
+      } else {
+        setNlpPrediction(null);
+        setDetectedLanguage(null);
       }
-    } else {
-      setNlpPrediction(null);
-      setDetectedLanguage(null);
-    }
+    }, 250);
+
+    return () => clearTimeout(timer);
   }, [description]);
 
   // Stop Voice Speech Recognition cleanly and immediately
@@ -132,21 +137,21 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
     setIsListening(false);
     setIsSpeechActive(false);
 
-    if (recognitionRef.current) {
+    const rec = recognitionRef.current;
+    recognitionRef.current = null;
+
+    if (rec) {
       try {
-        const rec = recognitionRef.current;
-        recognitionRef.current = null;
         rec.onstart = null;
         rec.onresult = null;
         rec.onerror = null;
         rec.onend = null;
         rec.onspeechstart = null;
         rec.onspeechend = null;
-        try { rec.abort(); } catch {}
-        try { rec.stop(); } catch {}
-      } catch (e) {
-        console.warn("Speech recognition stop error:", e);
-      }
+      } catch (e) {}
+
+      try { rec.abort(); } catch {}
+      try { rec.stop(); } catch {}
     }
 
     if (micStreamRef.current) {
@@ -161,7 +166,7 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
 
     setTimeout(() => {
       isStoppingRef.current = false;
-    }, 400);
+    }, 200);
   };
 
   // Start Voice Speech Recognition
@@ -176,14 +181,9 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
       return;
     }
 
-    // If a session was already active, stop it cleanly first
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.onend = null;
-        recognitionRef.current.abort();
-      } catch (e) {}
-      recognitionRef.current = null;
-    }
+    // Stop any existing instance first
+    stopVoiceRecording();
+    isStoppingRef.current = false;
 
     try {
       const recognition = new SpeechRec();
@@ -193,7 +193,6 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
       recognition.maxAlternatives = 1;
 
       initialTextBeforeRecord.current = description.trim();
-      let finalAccumulated = '';
 
       recognition.onstart = () => {
         if (isStoppingRef.current || !isListeningRef.current) {
@@ -218,32 +217,25 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
 
       recognition.onresult = (event: any) => {
         if (isStoppingRef.current || !isListeningRef.current) return;
+        let finalText = '';
         let interimText = '';
 
         for (let i = 0; i < event.results.length; i++) {
-          const part = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalAccumulated += part + ' ';
+          const res = event.results[i];
+          if (res.isFinal) {
+            finalText += res[0].transcript + ' ';
           } else {
-            interimText += part;
+            interimText += res[0].transcript;
           }
         }
 
-        const currentSpoken = (finalAccumulated + interimText).trim();
+        const currentSpoken = (finalText + interimText).trim();
         if (currentSpoken) {
           const base = initialTextBeforeRecord.current;
           const fullText = base ? `${base} ${currentSpoken}` : currentSpoken;
           setDescription(fullText);
 
-          // Detect Indian language
-          const detected = detectIndianLanguageFromText(fullText);
-          const langMatch = SUPPORTED_LANGUAGES.find(l => l.code === detected);
-          if (langMatch) {
-            setDetectedLanguage(`${langMatch.nativeName} (${langMatch.name})`);
-          }
-
-          // Suggest title if empty
-          if (!title.trim() && currentSpoken.length > 3) {
+          if (!title.trim() && currentSpoken.length > 5) {
             const words = currentSpoken.split(/\s+/);
             setTitle(words.slice(0, 6).join(' '));
           }
@@ -270,25 +262,15 @@ export const SubmitComplaint: React.FC<SubmitComplaintProps> = ({ village, onSub
           return;
         }
         if (err.error === 'network') {
-          setSpeechError("Voice recognition connection notice: speak clearly or use the instant voice presets below.");
+          setSpeechError("Voice recognition connection error. You can continue speaking or use the instant voice presets below.");
           return;
         }
       };
 
       recognition.onend = () => {
-        if (!isStoppingRef.current && isListeningRef.current) {
-          try {
-            recognition.start();
-          } catch {
-            setIsListening(false);
-            isListeningRef.current = false;
-            setIsSpeechActive(false);
-          }
-        } else {
-          setIsListening(false);
-          isListeningRef.current = false;
-          setIsSpeechActive(false);
-        }
+        setIsListening(false);
+        isListeningRef.current = false;
+        setIsSpeechActive(false);
       };
 
       recognitionRef.current = recognition;
