@@ -29,11 +29,11 @@ export const CitizenHome: React.FC<CitizenHomeProps> = ({ village, onNavigateTab
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-emerald-950 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-5 border border-slate-800">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-5">
           <img 
             src="/logo.jpg" 
             alt="GramVerse AI Logo" 
-            className="w-24 sm:w-28 h-auto rounded-xl object-contain shadow-md border border-slate-700 bg-[#17232b] p-1 shrink-0 self-start sm:self-auto" 
+            className="w-40 sm:w-52 md:w-60 h-auto rounded-2xl object-contain shadow-lg border-2 border-slate-700 bg-[#17232b] p-2 shrink-0 self-start sm:self-auto hover:scale-105 transition" 
           />
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold mb-2 border border-emerald-400/30">

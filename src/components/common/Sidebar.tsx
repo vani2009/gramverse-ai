@@ -123,11 +123,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-[11px] text-white flex items-center gap-2.5 shadow-2xs">
-        <img src="/emblem.png" alt="GramVerse AI" className="w-8 h-8 rounded-lg object-contain bg-[#17232b] p-0.5 border border-slate-700/80 shrink-0" />
-        <div className="min-w-0">
-          <div className="font-bold text-slate-100 truncate">GramVerse AI</div>
-          <div className="text-[10px] text-emerald-400 font-medium">Village Governance v1.0.0</div>
+      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-white flex flex-col items-center gap-2 shadow-sm">
+        <img src="/logo.jpg" alt="GramVerse AI" className="w-full max-w-[170px] h-auto rounded-lg object-contain bg-[#17232b] p-1.5 border border-slate-700/80 shadow-xs" />
+        <div className="text-center">
+          <div className="text-[10px] text-emerald-400 font-semibold tracking-wide">Village Governance Cloud v1.0.0</div>
         </div>
       </div>
     </aside>

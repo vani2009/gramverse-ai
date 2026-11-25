@@ -28,17 +28,24 @@ export const SurveyPwa: React.FC<SurveyPwaProps> = ({ village }) => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header and Mobile View Toggle */}
-      <div className="bg-gradient-to-r from-amber-700 via-amber-800 to-slate-900 rounded-2xl p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/30 text-amber-200 text-xs font-semibold mb-2 border border-amber-400/30">
-            <Smartphone className="w-3.5 h-3.5" /> Mobile-First Field Worker PWA
+      <div className="bg-gradient-to-r from-amber-700 via-amber-800 to-slate-900 rounded-2xl p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <img 
+            src="/logo.jpg" 
+            alt="GramVerse AI Logo" 
+            className="w-32 sm:w-40 h-auto rounded-xl object-contain shadow-md border border-slate-700 bg-[#17232b] p-1.5 shrink-0 self-start sm:self-auto" 
+          />
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/30 text-amber-200 text-xs font-semibold mb-2 border border-amber-400/30">
+              <Smartphone className="w-3.5 h-3.5" /> Mobile-First Field Worker PWA
+            </div>
+            <h2 className="text-xl font-black tracking-tight">
+              Gram Mitra Field Data Collection
+            </h2>
+            <p className="text-xs text-amber-100/80 mt-1">
+              Volunteer: <strong>Pooja Verma</strong> • Offline IndexedDB Queue • GPS Geotagging Enabled
+            </p>
           </div>
-          <h2 className="text-xl font-black tracking-tight">
-            Gram Mitra Field Data Collection
-          </h2>
-          <p className="text-xs text-amber-100/80 mt-1">
-            Volunteer: <strong>Pooja Verma</strong> • Offline IndexedDB Queue • GPS Geotagging Enabled
-          </p>
         </div>
 
         <button

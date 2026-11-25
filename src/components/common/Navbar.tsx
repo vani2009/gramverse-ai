@@ -72,11 +72,11 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-[1100] bg-white border-b border-slate-200/90 shadow-2xs">
       {/* Top Demo Bar / Role Switcher Header */}
       <div className="bg-slate-900 text-white px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2">
-          <img src="/emblem.png" alt="GramVerse AI Logo" className="w-5 h-5 rounded-full object-cover ring-1 ring-emerald-400/60" />
-          <span className="font-bold text-slate-200 tracking-wide">GRAMVERSE AI</span>
+        <div className="flex items-center gap-2.5">
+          <img src="/emblem.png" alt="GramVerse AI Logo" className="w-7 h-7 rounded-full object-cover ring-2 ring-emerald-400/80 shadow-xs" />
+          <span className="font-extrabold text-slate-100 tracking-wide text-xs">GRAMVERSE AI</span>
           <span className="text-slate-400 hidden sm:inline">|</span>
-          <span className="text-slate-300 hidden sm:inline">Role-Based Village Governance & AI Platform</span>
+          <span className="text-slate-300 hidden sm:inline">{t('Role-Based Village Governance & AI Platform')}</span>
         </div>
 
         {/* 4 Role Switcher Tabs */}
@@ -206,16 +206,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             <img 
               src="/logo.jpg" 
               alt="GramVerse AI Logo" 
-              className="h-10 w-auto rounded-xl object-contain shadow-xs border border-slate-700/60 bg-[#17232b] px-1 py-0.5 group-hover:scale-105 transition duration-150"
+              className="h-12 sm:h-14 md:h-16 w-auto rounded-xl object-contain shadow-md border border-slate-700/80 bg-[#17232b] px-2 py-1 group-hover:scale-105 transition duration-150 shrink-0"
             />
             <div className="hidden sm:block">
-              <div className="font-extrabold text-base text-slate-900 tracking-tight leading-none flex items-center gap-1.5">
+              <div className="font-black text-lg text-slate-900 tracking-tight leading-none flex items-center gap-1.5">
                 <span>GramVerse</span>
-                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
+                <span className="bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
                   AI
                 </span>
               </div>
-              <span className="text-[11px] text-slate-500 font-medium">Village Governance Cloud</span>
+              <span className="text-xs text-slate-500 font-semibold">{t('Village Governance Cloud')}</span>
             </div>
           </div>
 

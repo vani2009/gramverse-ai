@@ -53,17 +53,24 @@ export const PanchayatDashboard: React.FC<PanchayatDashboardProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Welcome Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-100 text-xs font-semibold mb-2 border border-emerald-400/30">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" /> Gram Panchayat Administration Console
+      <div className="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <img 
+            src="/logo.jpg" 
+            alt="GramVerse AI Logo" 
+            className="w-36 sm:w-44 h-auto rounded-xl object-contain shadow-md border border-slate-700 bg-[#17232b] p-1.5 shrink-0 self-start sm:self-auto" 
+          />
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-100 text-xs font-semibold mb-2 border border-emerald-400/30">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" /> Gram Panchayat Administration Console
+            </div>
+            <h1 className="text-2xl font-black tracking-tight">
+              {village.name} Gram Panchayat Dashboard
+            </h1>
+            <p className="text-xs text-emerald-100/90 mt-1">
+              Block: <strong>{village.block}</strong> • District: <strong>{village.district}</strong> • Model Village Index: <strong>{village.developmentIndex}/100</strong>
+            </p>
           </div>
-          <h1 className="text-2xl font-black tracking-tight">
-            {village.name} Gram Panchayat Dashboard
-          </h1>
-          <p className="text-xs text-emerald-100/90 mt-1">
-            Block: <strong>{village.block}</strong> • District: <strong>{village.district}</strong> • Model Village Index: <strong>{village.developmentIndex}/100</strong>
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
