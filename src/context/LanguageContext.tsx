@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   SupportedLanguage, 
   SUPPORTED_LANGUAGES, 
   LanguageOption,
-  translateString 
+  translateString,
+  triggerGoogleTranslate
 } from '../services/translationService';
 
 interface LanguageContextType {
@@ -37,7 +38,14 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch {
       // ignore
     }
+    triggerGoogleTranslate(lang);
   };
+
+  useEffect(() => {
+    if (language !== 'en') {
+      triggerGoogleTranslate(language);
+    }
+  }, [language]);
 
   const t = (key: string, fallback?: string): string => {
     if (language === 'en') return fallback || key;

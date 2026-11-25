@@ -931,8 +931,48 @@ export function translateString(text: string, targetLang: SupportedLanguage): st
 /**
  * Trigger official Google Translate client-side translation
  */
-export function triggerGoogleTranslate(_langCode: SupportedLanguage): void {
-  // Clean no-op to eliminate DOM thrashing and cookie loops
+export function triggerGoogleTranslate(langCode: SupportedLanguage): void {
+  try {
+    if (typeof document === 'undefined') return;
+
+    const hostname = window.location.hostname;
+    const cookieDomain = (hostname === 'localhost' || hostname === '127.0.0.1') ? '' : `domain=${hostname};`;
+
+    if (langCode === 'en') {
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      if (cookieDomain) {
+        document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; ${cookieDomain}`;
+      }
+      const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+      if (select) {
+        select.value = 'en';
+        select.dispatchEvent(new Event('change'));
+      }
+      return;
+    }
+
+    const cookieVal = `/en/${langCode}`;
+    document.cookie = `googtrans=${cookieVal}; path=/;`;
+    if (cookieDomain) {
+      document.cookie = `googtrans=${cookieVal}; path=/; ${cookieDomain}`;
+    }
+
+    const applyCombo = (retries = 10) => {
+      const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+      if (select) {
+        if (select.value !== langCode) {
+          select.value = langCode;
+          select.dispatchEvent(new Event('change'));
+        }
+      } else if (retries > 0) {
+        setTimeout(() => applyCombo(retries - 1), 250);
+      }
+    };
+
+    applyCombo();
+  } catch (err) {
+    console.warn('Google Translate sync:', err);
+  }
 }
 
 /**
