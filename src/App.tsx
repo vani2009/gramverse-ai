@@ -136,6 +136,8 @@ export function AppContent() {
       return (
         <AdminDashboard
           villages={storageService.getVillages()}
+          activeTab={activeTab}
+          onTabChange={tab => setActiveTab(tab)}
           onSelectVillage={vil => {
             setSelectedVillage(vil);
             setCurrentRole('panchayat');
