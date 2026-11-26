@@ -190,45 +190,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       </div>
 
-      {/* Admin Module Switcher Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
-        <button
-          onClick={() => onTabChange?.('dashboard')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
-            activeTab === 'dashboard'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          <Building2 className="w-4 h-4" />
-          <span>Admin Overview</span>
-        </button>
-
-        <button
-          onClick={() => onTabChange?.('analytics')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
-            activeTab === 'analytics'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          <BarChart3 className="w-4 h-4" />
-          <span>Village Comparison</span>
-        </button>
-
-        <button
-          onClick={() => onTabChange?.('reports')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
-            activeTab === 'reports'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          <FileSpreadsheet className="w-4 h-4" />
-          <span>Reports & Exports</span>
-        </button>
-      </div>
-
       {/* TAB 1: ADMIN OVERVIEW (activeTab === 'dashboard') */}
       {activeTab === 'dashboard' && (
         <div className="space-y-6">
