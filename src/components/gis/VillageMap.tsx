@@ -19,6 +19,7 @@ interface VillageMapProps {
   infrastructure: InfrastructureAsset[];
   allVillages?: Village[];
   allowBlockFilter?: boolean;
+  allowVillageFilter?: boolean;
   initialBlock?: string;
   selectedComplaintId?: string | null;
   onSelectComplaint?: (complaint: Complaint) => void;
@@ -33,6 +34,7 @@ export const VillageMap: React.FC<VillageMapProps> = ({
   infrastructure,
   allVillages,
   allowBlockFilter = true,
+  allowVillageFilter = true,
   initialBlock = 'all',
   selectedComplaintId,
   onSelectComplaint,
@@ -46,13 +48,13 @@ export const VillageMap: React.FC<VillageMapProps> = ({
   const boundariesLayerRef = useRef<L.LayerGroup | null>(null);
   const radiusLayerRef = useRef<L.LayerGroup | null>(null);
 
-  const villageList = allVillages && allVillages.length > 0 ? allVillages : [village];
+  const villageList = (!allowVillageFilter || !allVillages || allVillages.length === 0) ? [village] : allVillages;
   const availableBlocks = Array.from(new Set(villageList.map(v => v.block)));
 
   // Filter states
-  const [selectedBlock, setSelectedBlock] = useState<string>(initialBlock);
+  const [selectedBlock, setSelectedBlock] = useState<string>(allowBlockFilter ? initialBlock : village.block);
   const [selectedVillageId, setSelectedVillageId] = useState<string>(
-    allowBlockFilter && initialBlock === 'all' ? 'all' : village.id
+    allowVillageFilter && allowBlockFilter && initialBlock === 'all' ? 'all' : village.id
   );
 
   const [filterLayer, setFilterLayer] = useState<{
@@ -594,31 +596,38 @@ export const VillageMap: React.FC<VillageMapProps> = ({
             </div>
           )}
 
-          {/* Village Selector */}
-          <div className="flex items-center gap-1 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-xl shadow-md border border-slate-200 text-xs font-semibold text-slate-700">
-            <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <select
-              value={selectedVillageId}
-              onChange={e => {
-                const val = e.target.value;
-                setSelectedVillageId(val);
-                if (val !== 'all') {
-                  const found = villageList.find(v => v.id === val);
-                  if (found && onSelectVillage) onSelectVillage(found);
-                }
-              }}
-              className="bg-transparent font-bold text-slate-800 outline-none cursor-pointer text-xs"
-            >
-              <option value="all">
-                {selectedBlock === 'all' ? 'All Villages in All Blocks' : `All Villages in ${selectedBlock} Block`}
-              </option>
-              {blockVillages.map(v => (
-                <option key={v.id} value={v.id}>
-                  {v.name} GP ({v.block})
+          {/* Village Selector or Locked Jurisdiction Badge */}
+          {allowVillageFilter ? (
+            <div className="flex items-center gap-1 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-xl shadow-md border border-slate-200 text-xs font-semibold text-slate-700">
+              <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <select
+                value={selectedVillageId}
+                onChange={e => {
+                  const val = e.target.value;
+                  setSelectedVillageId(val);
+                  if (val !== 'all') {
+                    const found = villageList.find(v => v.id === val);
+                    if (found && onSelectVillage) onSelectVillage(found);
+                  }
+                }}
+                className="bg-transparent font-bold text-slate-800 outline-none cursor-pointer text-xs"
+              >
+                <option value="all">
+                  {selectedBlock === 'all' ? 'All Villages in All Blocks' : `All Villages in ${selectedBlock} Block`}
                 </option>
-              ))}
-            </select>
-          </div>
+                {blockVillages.map(v => (
+                  <option key={v.id} value={v.id}>
+                    {v.name} GP ({v.block})
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 bg-emerald-50/95 border border-emerald-300 text-emerald-900 px-3 py-1.5 rounded-xl shadow-md text-xs font-bold backdrop-blur-md">
+              <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>{village.name} GP Jurisdiction</span>
+            </div>
+          )}
 
           {/* PostGIS Connection Badge */}
           <div className={`px-2.5 py-1.5 rounded-xl shadow-md border backdrop-blur-md flex items-center gap-1.5 font-semibold text-xs ${

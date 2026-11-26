@@ -245,15 +245,15 @@ export const PanchayatDashboard: React.FC<PanchayatDashboardProps> = ({
 
           <VillageMap
             village={village}
-            complaints={allComplaints}
-            infrastructure={allInfrastructure}
-            allVillages={allVillages}
-            allowBlockFilter={true}
-            initialBlock={village.block}
+            complaints={complaints}
+            infrastructure={infrastructure}
+            allVillages={[village]}
+            allowBlockFilter={false}
+            allowVillageFilter={false}
             selectedComplaintId={selectedMapComplaint?.id}
             onSelectComplaint={cmp => setSelectedMapComplaint(cmp)}
             height="460px"
-            title={`${village.name} GP & ${village.block} Block Map`}
+            title={`${village.name} Gram Panchayat Spatial Map`}
           />
         </div>
 

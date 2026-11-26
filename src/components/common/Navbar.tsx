@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-[1100] bg-white border-b border-slate-200/90 shadow-2xs">
-      {/* Top Demo Bar / Role Switcher Header */}
+      {/* Top Bar with Emblem, Title, Language Switcher and Offline Status */}
       <div className="bg-slate-900 text-white px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2.5">
           <img src="/emblem.png" alt="GramVerse AI Logo" className="w-7 h-7 rounded-full object-cover ring-2 ring-emerald-400/80 shadow-xs" />
@@ -86,75 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span className="text-slate-300 hidden sm:inline">{t('Role-Based Village Governance & AI Platform')}</span>
         </div>
 
-        {/* 4 Role Switcher Tabs */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center bg-slate-800 p-0.5 rounded-xl border border-slate-700">
-            <button
-              onClick={() => {
-                onRoleChange('admin');
-                onTabChange('dashboard');
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition ${
-                currentRole === 'admin'
-                  ? 'bg-indigo-600 text-white shadow-xs font-semibold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              <span>{t('role.admin', 'Admin')}</span>
-            </button>
-
-            <button
-              onClick={() => {
-                onRoleChange('panchayat');
-                onTabChange('dashboard');
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition ${
-                currentRole === 'panchayat'
-                  ? 'bg-emerald-600 text-white shadow-xs font-semibold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-              }`}
-            >
-              <Landmark className="w-3.5 h-3.5" />
-              <span>{t('role.panchayat', 'Panchayat')}</span>
-            </button>
-
-            <button
-              onClick={() => {
-                onRoleChange('citizen');
-                onTabChange('home');
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition ${
-                currentRole === 'citizen'
-                  ? 'bg-sky-600 text-white shadow-xs font-semibold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-              }`}
-            >
-              <User className="w-3.5 h-3.5" />
-              <span>{t('role.citizen', 'Citizen')}</span>
-            </button>
-
-            <button
-              onClick={() => {
-                onRoleChange('survey');
-                onTabChange('home');
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition relative ${
-                currentRole === 'survey'
-                  ? 'bg-amber-600 text-white shadow-xs font-semibold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-              }`}
-            >
-              <ClipboardList className="w-3.5 h-3.5" />
-              <span>{t('role.survey', 'Survey PWA')}</span>
-              {offlinePendingCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                  {offlinePendingCount}
-                </span>
-              )}
-            </button>
-          </div>
-
+        <div className="flex items-center gap-3">
           {/* Indian Language Switcher Dropdown */}
           <div className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1 text-xs">
             <Globe className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
@@ -171,10 +103,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               ))}
             </select>
           </div>
-        </div>
 
-        {/* Network Toggle and Reset button */}
-        <div className="flex items-center gap-2">
+          {/* Network Simulation Toggle */}
           <button
             onClick={toggleOnline}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition ${
@@ -185,9 +115,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Toggle network simulation for PWA offline testing"
           >
             {isOnline ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
-            <span>{isOnline ? 'Network Online' : 'Network Offline (PWA)'}</span>
+            <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline Mode'}</span>
           </button>
 
+          {/* Reset Demo Data */}
           <button
             onClick={handleResetData}
             className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
@@ -218,23 +149,31 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* Village Selector Dropdown */}
+          {/* Village Context: Dropdown for Admin, Locked Badge for Panchayat/Citizen */}
           <div className="relative ml-4 pl-4 border-l border-slate-200 hidden md:flex items-center gap-1.5">
             <MapPin className="w-4 h-4 text-emerald-600" />
-            <select
-              value={selectedVillage.id}
-              onChange={e => {
-                const found = villages.find(v => v.id === e.target.value);
-                if (found) onVillageChange(found);
-              }}
-              className="text-xs font-semibold text-slate-800 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 outline-hidden cursor-pointer"
-            >
-              {villages.map(v => (
-                <option key={v.id} value={v.id}>
-                  {v.name} GP ({v.block} Block)
-                </option>
-              ))}
-            </select>
+            {currentRole === 'admin' ? (
+              <select
+                value={selectedVillage.id}
+                onChange={e => {
+                  const found = villages.find(v => v.id === e.target.value);
+                  if (found) onVillageChange(found);
+                }}
+                className="text-xs font-semibold text-slate-800 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 outline-hidden cursor-pointer"
+                title="Select Panchayat to inspect"
+              >
+                {villages.map(v => (
+                  <option key={v.id} value={v.id}>
+                    {v.name} GP ({v.block} Block)
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className="text-xs font-bold text-slate-800 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-lg px-2.5 py-1 flex items-center gap-1.5">
+                <span>{selectedVillage.name} GP</span>
+                <span className="text-[10px] text-emerald-700 font-semibold">({selectedVillage.block} Block)</span>
+              </div>
+            )}
           </div>
         </div>
 
