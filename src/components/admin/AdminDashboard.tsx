@@ -3,6 +3,7 @@ import { Village, Complaint } from '../../types';
 import { StatCard } from '../common/StatCard';
 import { VillageMap } from '../gis/VillageMap';
 import { storageService } from '../../services/storageService';
+import { generateDistrictReportPDF } from '../../services/pdfReportService';
 import {
   Building2,
   Users,
@@ -82,32 +83,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   ];
 
   const handleExportReport = () => {
-    const reportText = `GRAMVERSE AI - DISTRICT GOVERNANCE & AI ANALYTICS REPORT
-Generated: ${new Date().toLocaleString()}
-District: Sehore District (MP) | Block: Ashta Block | Total Villages Tracked: ${villages.length}
-===================================================================
-Total Block Population: ${totalPopulation.toLocaleString()}
-Total Registered Households: ${totalHouseholds.toLocaleString()}
-Total Budget Allocated: ₹${totalBudget.toFixed(2)} Lakhs
-Total Budget Utilized: ₹${totalSpent.toFixed(2)} Lakhs (${((totalSpent / totalBudget) * 100).toFixed(1)}%)
-District Development Index: ${avgDevScore}/100
-
-VILLAGE COMPARISON MATRIX:
-${villages.map(v => `- ${v.name} GP (${v.block} Block): Pop: ${v.population}, Dev Index: ${v.developmentIndex}, Water: ${v.waterCoveragePct}%, Road: ${v.roadQualityIndex}%, Active Complaints: ${v.activeComplaints}`).join('\n')}
-
-AI ENGINE TELEMETRY:
-- NLP Categorization Accuracy: 96.4%
-- Average Grievance Triaging Latency: 2.1s
-- High Priority Grievances Flagged: ${complaints.filter(c => c.priorityScore >= 3000).length}
-`;
-
-    const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `GramVerse_District_Report_${new Date().toISOString().split('T')[0]}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    generateDistrictReportPDF(villages, complaints, {
+      totalPopulation,
+      totalHouseholds,
+      totalBudget,
+      totalSpent,
+      avgDevScore
+    });
   };
 
   return (
@@ -136,9 +118,10 @@ AI ENGINE TELEMETRY:
         <div className="flex items-center gap-2">
           <button
             onClick={handleExportReport}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs border border-white/20 backdrop-blur-md transition shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs shadow-md hover:shadow-lg transition cursor-pointer"
+            title="Download official District Analytics Dossier in PDF format"
           >
-            <Download className="w-4 h-4" /> Export District Report
+            <Download className="w-4 h-4" /> Download Report (PDF)
           </button>
         </div>
       </div>

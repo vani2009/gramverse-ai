@@ -3,6 +3,7 @@ import { Village, Complaint } from '../../types';
 import { StatCard } from '../common/StatCard';
 import { VillageMap } from '../gis/VillageMap';
 import { storageService } from '../../services/storageService';
+import { generatePanchayatReportPDF } from '../../services/pdfReportService';
 import {
   Users,
   Droplets,
@@ -13,7 +14,8 @@ import {
   TrendingUp,
   ArrowRight,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  Download
 } from 'lucide-react';
 
 interface PanchayatDashboardProps {
@@ -73,10 +75,19 @@ export const PanchayatDashboard: React.FC<PanchayatDashboardProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => generatePanchayatReportPDF(village, complaints)}
+            className="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs border border-white/20 backdrop-blur-md transition shadow-xs flex items-center gap-1.5 cursor-pointer"
+            title="Download official Gram Panchayat dossier in PDF format"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Download Report (PDF)
+          </button>
+
           <button
             onClick={() => onNavigateTab('complaints')}
-            className="px-4 py-2 rounded-xl bg-white text-emerald-900 font-bold text-xs hover:bg-emerald-50 transition shadow-xs flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-white text-emerald-900 font-bold text-xs hover:bg-emerald-50 transition shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             Review Grievances ({activeComplaints.length})
             <ArrowRight className="w-3.5 h-3.5" />
