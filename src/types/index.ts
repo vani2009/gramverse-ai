@@ -169,3 +169,15 @@ export interface ChatMessage {
   timestamp: string;
   citations?: RagDocumentCitation[];
 }
+
+export interface PanchayatNotice {
+  id: string;
+  villageId: string;
+  title: string;
+  content: string;
+  category: 'Gram Sabha' | 'Water Supply' | 'Health Camp' | 'Agriculture' | 'Emergency' | 'General';
+  priority: 'Normal' | 'High' | 'Urgent';
+  date: string;
+  authorName: string;
+  authorRole: string;
+}

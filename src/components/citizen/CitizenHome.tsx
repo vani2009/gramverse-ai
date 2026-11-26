@@ -1,5 +1,5 @@
-import React from 'react';
-import { Village, Complaint } from '../../types';
+import React, { useState, useEffect } from 'react';
+import { Village, Complaint, PanchayatNotice } from '../../types';
 import { storageService } from '../../services/storageService';
 import { useLanguage } from '../../context/LanguageContext';
 import {
@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   Calendar,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  AlertTriangle
 } from 'lucide-react';
 
 interface CitizenHomeProps {
@@ -24,6 +25,15 @@ export const CitizenHome: React.FC<CitizenHomeProps> = ({ village, onNavigateTab
   const { t } = useLanguage();
   const complaints = storageService.getComplaints().filter(c => c.villageId === village.id);
   const activeCount = complaints.filter(c => c.status !== 'Resolved').length;
+  const [notices, setNotices] = useState<PanchayatNotice[]>(() => storageService.getNotices(village.id));
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setNotices(storageService.getNotices(village.id));
+    };
+    window.addEventListener('gramverse-storage-change', handleUpdate);
+    return () => window.removeEventListener('gramverse-storage-change', handleUpdate);
+  }, [village.id]);
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -148,26 +158,54 @@ export const CitizenHome: React.FC<CitizenHomeProps> = ({ village, onNavigateTab
             <h3 className="font-bold text-sm text-slate-900">{t("Gram Panchayat Notice Board")}</h3>
           </div>
 
-          <div className="space-y-3 text-xs">
-            <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-100 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-emerald-900">
-                <Calendar className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Special Gram Sabha Meeting</span>
-              </div>
-              <p className="text-emerald-800 leading-snug">
-                Date: 25 Nov 2026, 11:00 AM at Panchayat Bhavan. Agenda: GPDP 2025 development works and drinking water tariff.
-              </p>
-            </div>
+          <div className="space-y-3 text-xs max-h-[480px] overflow-y-auto pr-1">
+            {notices.length === 0 ? (
+              <p className="text-slate-400 text-xs italic py-4 text-center">No active notices at this time.</p>
+            ) : (
+              notices.map((notice, idx) => {
+                const isUrgent = notice.priority === 'Urgent';
+                const isHigh = notice.priority === 'High';
+                return (
+                  <div
+                    key={notice.id}
+                    className={`p-3.5 rounded-xl border space-y-1.5 transition ${
+                      isUrgent
+                        ? 'bg-rose-50/90 border-rose-200 text-rose-950 shadow-2xs'
+                        : isHigh
+                        ? 'bg-amber-50/80 border-amber-200 text-amber-950 shadow-2xs'
+                        : 'bg-emerald-50/70 border-emerald-100 text-emerald-950'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1.5 font-bold">
+                        {isUrgent ? (
+                          <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                        ) : (
+                          <Calendar className={`w-3.5 h-3.5 shrink-0 ${isHigh ? 'text-amber-600' : 'text-emerald-600'}`} />
+                        )}
+                        <span className="leading-tight">{notice.title}</span>
+                      </div>
+                      {idx === 0 && (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-emerald-600 text-white shrink-0 animate-pulse">
+                          NEW
+                        </span>
+                      )}
+                    </div>
 
-            <div className="p-3 rounded-xl bg-sky-50/70 border border-sky-100 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-sky-900">
-                <CheckCircle2 className="w-3.5 h-3.5 text-sky-600" />
-                <span>JJM Tap Water Field Testing Camp</span>
-              </div>
-              <p className="text-sky-800 leading-snug">
-                VWSC members are testing drinking water samples from all 9 wards. Bring water samples for free chlorine/fluoride check.
-              </p>
-            </div>
+                    <p className="leading-relaxed text-slate-700 text-[11px]">
+                      {notice.content}
+                    </p>
+
+                    <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1.5 border-t border-slate-200/60">
+                      <span>{notice.date}</span>
+                      <span className="font-semibold px-2 py-0.5 rounded-full bg-white/80 border border-slate-200/60 text-slate-700">
+                        {notice.authorRole}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 

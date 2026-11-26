@@ -1,4 +1,4 @@
-import { Complaint, Household, InfrastructureAsset, OfflineSurveyRecord, UserRole, Village } from '../types';
+import { Complaint, Household, InfrastructureAsset, OfflineSurveyRecord, UserRole, Village, PanchayatNotice } from '../types';
 import { MOCK_COMPLAINTS, MOCK_HOUSEHOLDS, MOCK_INFRASTRUCTURE, MOCK_VILLAGES } from '../data/mockData';
 import { apiService } from './apiService';
 
@@ -11,8 +11,45 @@ const STORAGE_KEYS = {
   OFFLINE_QUEUE: 'gramverse_offline_queue',
   ONLINE_STATUS: 'gramverse_online_status',
   BACKEND_SYNCED: 'gramverse_backend_synced',
-  DATA_VERSION: 'gramverse_data_version'
+  DATA_VERSION: 'gramverse_data_version',
+  NOTICES: 'gramverse_panchayat_notices'
 };
+
+export const INITIAL_MOCK_NOTICES: PanchayatNotice[] = [
+  {
+    id: 'not_01',
+    villageId: 'vil_kothri',
+    title: 'Special Gram Sabha Meeting',
+    content: 'Date: 28 Nov 2026, 11:00 AM at Panchayat Bhavan. Agenda: GPDP 2025 village development plan, solar light installations, and drinking water tariff review.',
+    category: 'Gram Sabha',
+    priority: 'High',
+    date: '26 Nov 2026',
+    authorName: 'Rajesh Sharma',
+    authorRole: 'Panchayat Secretary'
+  },
+  {
+    id: 'not_02',
+    villageId: 'vil_kothri',
+    title: 'JJM Tap Water Field Testing Camp',
+    content: 'VWSC members and PHED technicians are testing drinking water samples from all 9 wards. Villagers can bring drinking water samples for free chlorine/fluoride check.',
+    category: 'Water Supply',
+    priority: 'Normal',
+    date: '25 Nov 2026',
+    authorName: 'Sunita Bai',
+    authorRole: 'Sarpanch'
+  },
+  {
+    id: 'not_03',
+    villageId: 'vil_kothri',
+    title: 'PM-KISAN e-KYC & Aadhaar Seeding Camp',
+    content: 'Special camp at Panchayat Common Service Centre for farmers whose 18th installment is pending due to land record verification or Aadhaar seeding.',
+    category: 'Agriculture',
+    priority: 'Normal',
+    date: '24 Nov 2026',
+    authorName: 'Pooja Verma',
+    authorRole: 'Gram Mitra'
+  }
+];
 
 const CURRENT_DATA_VERSION = 'v6_smooth_speed_optimized';
 
@@ -320,11 +357,50 @@ class StorageService {
     return { syncedCount, errors: 0, backendSynced };
   }
 
+  // Notice Board Operations
+  getNotices(villageId?: string): PanchayatNotice[] {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.NOTICES);
+      let list: PanchayatNotice[] = saved ? JSON.parse(saved) : INITIAL_MOCK_NOTICES;
+      if (villageId) {
+        list = list.filter(n => n.villageId === villageId || n.villageId === 'all');
+      }
+      return list;
+    } catch {
+      return INITIAL_MOCK_NOTICES;
+    }
+  }
+
+  addNotice(notice: Omit<PanchayatNotice, 'id' | 'date'>): PanchayatNotice {
+    const list = this.getNotices();
+    const newNotice: PanchayatNotice = {
+      ...notice,
+      id: 'not_' + Date.now(),
+      date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    };
+    const updated = [newNotice, ...list];
+    try {
+      localStorage.setItem(STORAGE_KEYS.NOTICES, JSON.stringify(updated));
+    } catch {}
+    this.notifyChange();
+    return newNotice;
+  }
+
+  deleteNotice(id: string) {
+    const list = this.getNotices();
+    const updated = list.filter(n => n.id !== id);
+    try {
+      localStorage.setItem(STORAGE_KEYS.NOTICES, JSON.stringify(updated));
+    } catch {}
+    this.notifyChange();
+  }
+
   resetAllToDefault() {
     localStorage.removeItem(STORAGE_KEYS.COMPLAINTS);
     localStorage.removeItem(STORAGE_KEYS.HOUSEHOLDS);
     localStorage.removeItem(STORAGE_KEYS.INFRASTRUCTURE);
     localStorage.removeItem(STORAGE_KEYS.OFFLINE_QUEUE);
+    localStorage.removeItem(STORAGE_KEYS.NOTICES);
     this.notifyChange();
   }
 }
