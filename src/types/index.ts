@@ -1,5 +1,22 @@
 export type UserRole = 'admin' | 'panchayat' | 'citizen' | 'survey';
 
+export interface AuthSession {
+  isAuthenticated: boolean;
+  role: UserRole;
+  user: {
+    id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    designation: string;
+    villageId?: string;
+    villageName?: string;
+    panchId?: string;
+    aadharNumber?: string;
+    employeeId?: string;
+  };
+}
+
 export interface User {
   id: string;
   name: string;

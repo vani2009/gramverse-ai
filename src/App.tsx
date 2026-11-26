@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { UserRole, Village, Complaint } from './types';
+import { UserRole, Village, Complaint, AuthSession } from './types';
 import { storageService } from './services/storageService';
 import { Navbar } from './components/common/Navbar';
 import { Sidebar } from './components/common/Sidebar';
 import { LanguageProvider } from './context/LanguageContext';
+import { LoginScreen } from './components/auth/LoginScreen';
 
 // Admin
 import { AdminDashboard } from './components/admin/AdminDashboard';
@@ -36,34 +37,98 @@ export function App() {
 }
 
 export function AppContent() {
-  const [currentRole, setCurrentRole] = useState<UserRole>(storageService.getCurrentRole());
-  const [selectedVillage, setSelectedVillage] = useState<Village>(
-    storageService.getVillages()[0]
+  const [authSession, setAuthSession] = useState<AuthSession | null>(
+    storageService.getAuthSession()
   );
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [currentRole, setCurrentRole] = useState<UserRole>(
+    authSession?.role || storageService.getCurrentRole()
+  );
+  const [selectedVillage, setSelectedVillage] = useState<Village>(() => {
+    const villages = storageService.getVillages();
+    const targetId = authSession?.user?.villageId || storageService.getSelectedVillageId();
+    return villages.find(v => v.id === targetId) || villages[0];
+  });
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    const role = authSession?.role || storageService.getCurrentRole();
+    if (role === 'citizen' || role === 'survey') return 'home';
+    return 'dashboard';
+  });
   const [selectedComplaintForMap, setSelectedComplaintForMap] = useState<Complaint | null>(null);
 
-  // Keep state synced
+  // Keep state synced across windows / storage events
   useEffect(() => {
     const handleStorageChange = () => {
-      // Re-trigger if needed
+      const session = storageService.getAuthSession();
+      if (session) {
+        setAuthSession(session);
+        setCurrentRole(session.role);
+      }
     };
     window.addEventListener('gramverse-storage-change', handleStorageChange);
     return () => window.removeEventListener('gramverse-storage-change', handleStorageChange);
   }, []);
 
+  const handleLoginSuccess = (session: AuthSession) => {
+    setAuthSession(session);
+    setCurrentRole(session.role);
+    storageService.setCurrentRole(session.role);
+    if (session.user?.villageId) {
+      const v = storageService.getVillages().find(vil => vil.id === session.user.villageId);
+      if (v) setSelectedVillage(v);
+    }
+    if (session.role === 'citizen' || session.role === 'survey') {
+      setActiveTab('home');
+    } else {
+      setActiveTab('dashboard');
+    }
+  };
+
+  const handleLogout = () => {
+    storageService.clearAuthSession();
+    setAuthSession(null);
+  };
+
   const handleRoleChange = (newRole: UserRole) => {
     setCurrentRole(newRole);
     storageService.setCurrentRole(newRole);
-    if (newRole === 'citizen') setActiveTab('home');
-    else if (newRole === 'survey') setActiveTab('home');
+    // Switch session role smoothly
+    let session: AuthSession;
+    if (newRole === 'admin') session = storageService.loginAdmin('admin.district@gramverse.gov.in');
+    else if (newRole === 'panchayat') session = storageService.loginPanchayat('PANCH-MP-001', selectedVillage.id);
+    else if (newRole === 'citizen') session = storageService.loginCitizen(selectedVillage.name, 'Rameshwar Lal Gurjar', '9823-4512-7890');
+    else session = storageService.loginSurvey('SURV-MP-8821', selectedVillage.id);
+
+    setAuthSession(session);
+    if (newRole === 'citizen' || newRole === 'survey') setActiveTab('home');
     else setActiveTab('dashboard');
   };
 
   const handleVillageChange = (village: Village) => {
     setSelectedVillage(village);
     storageService.setSelectedVillageId(village.id);
+    if (authSession) {
+      const updated = {
+        ...authSession,
+        user: {
+          ...authSession.user,
+          villageId: village.id,
+          villageName: village.name
+        }
+      };
+      setAuthSession(updated);
+      storageService.setAuthSession(updated);
+    }
   };
+
+  // If not authenticated, render Login Screen
+  if (!authSession || !authSession.isAuthenticated) {
+    return (
+      <LoginScreen
+        onLoginSuccess={handleLoginSuccess}
+        defaultRole={currentRole}
+      />
+    );
+  }
 
   // Render main screen
   const renderContent = () => {
@@ -148,7 +213,12 @@ export function AppContent() {
     }
 
     if (currentRole === 'survey') {
-      return <SurveyPwa village={selectedVillage} />;
+      return (
+        <SurveyPwa
+          village={selectedVillage}
+          onVillageChange={handleVillageChange}
+        />
+      );
     }
 
     return null;
@@ -164,6 +234,8 @@ export function AppContent() {
         onVillageChange={handleVillageChange}
         activeTab={activeTab}
         onTabChange={tab => setActiveTab(tab)}
+        authSession={authSession}
+        onLogout={handleLogout}
       />
 
       {/* Main Layout Area */}

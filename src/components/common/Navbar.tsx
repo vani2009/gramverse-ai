@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserRole, Village } from '../../types';
+import { UserRole, Village, AuthSession } from '../../types';
 import { storageService } from '../../services/storageService';
 import { MOCK_USERS } from '../../data/mockData';
 import { useLanguage } from '../../context/LanguageContext';
@@ -17,7 +17,8 @@ import {
   Layers, 
   ShieldCheck,
   ChevronDown,
-  Globe
+  Globe,
+  LogOut
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -27,6 +28,8 @@ interface NavbarProps {
   onVillageChange: (village: Village) => void;
   activeTab: string;
   onTabChange: (tab: string) => void;
+  authSession?: AuthSession | null;
+  onLogout?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -35,13 +38,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   selectedVillage,
   onVillageChange,
   activeTab,
-  onTabChange
+  onTabChange,
+  authSession,
+  onLogout
 }) => {
   const [isOnline, setIsOnline] = useState(storageService.isOnline());
   const [offlinePendingCount, setOfflinePendingCount] = useState(0);
   const { language, setLanguage, languageOptions, t } = useLanguage();
   const villages = storageService.getVillages();
   const currentUser = MOCK_USERS[currentRole];
+  const activeName = authSession?.user?.name || currentUser.name;
+  const activeDesignation = authSession?.user?.designation || currentUser.designation;
 
   const updateCounts = () => {
     setIsOnline(storageService.isOnline());
@@ -231,16 +238,44 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* User Persona Profile */}
+        {/* User Persona Profile & Logout */}
         <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
-            <div className="text-xs font-bold text-slate-900">{currentUser.name}</div>
-            <div className="text-[11px] text-slate-500">{currentUser.designation}</div>
+            <div className="text-xs font-bold text-slate-900 flex items-center justify-end gap-1.5">
+              <span>{activeName}</span>
+              {authSession?.user?.panchId && (
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded border border-emerald-300">
+                  {authSession.user.panchId}
+                </span>
+              )}
+              {authSession?.user?.employeeId && (
+                <span className="text-[10px] bg-amber-100 text-amber-800 font-extrabold px-1.5 py-0.5 rounded border border-amber-300">
+                  {authSession.user.employeeId}
+                </span>
+              )}
+              {authSession?.user?.aadharNumber && (
+                <span className="text-[10px] bg-sky-100 text-sky-800 font-extrabold px-1.5 py-0.5 rounded border border-sky-300">
+                  Aadhaar: {authSession.user.aadharNumber.slice(-4)}
+                </span>
+              )}
+            </div>
+            <div className="text-[11px] text-slate-500">{activeDesignation}</div>
           </div>
 
           <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-700 shadow-2xs">
-            {currentUser.name.charAt(0)}
+            {activeName.charAt(0)}
           </div>
+
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200 hover:border-rose-200 text-xs font-bold transition cursor-pointer shadow-2xs"
+              title="Sign Out / Switch Portal Account"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

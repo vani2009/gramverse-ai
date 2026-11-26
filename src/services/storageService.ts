@@ -1,4 +1,4 @@
-import { Complaint, Household, InfrastructureAsset, OfflineSurveyRecord, UserRole, Village, PanchayatNotice } from '../types';
+import { Complaint, Household, InfrastructureAsset, OfflineSurveyRecord, UserRole, Village, PanchayatNotice, AuthSession } from '../types';
 import { MOCK_COMPLAINTS, MOCK_HOUSEHOLDS, MOCK_INFRASTRUCTURE, MOCK_VILLAGES } from '../data/mockData';
 import { apiService } from './apiService';
 
@@ -12,7 +12,8 @@ const STORAGE_KEYS = {
   ONLINE_STATUS: 'gramverse_online_status',
   BACKEND_SYNCED: 'gramverse_backend_synced',
   DATA_VERSION: 'gramverse_data_version',
-  NOTICES: 'gramverse_panchayat_notices'
+  NOTICES: 'gramverse_panchayat_notices',
+  AUTH_SESSION: 'gramverse_auth_session'
 };
 
 export const INITIAL_MOCK_NOTICES: PanchayatNotice[] = [
@@ -103,6 +104,115 @@ class StorageService {
 
   getBackendStatus(): boolean {
     return this.isBackendReachable;
+  }
+
+  // Auth Session Management
+  getAuthSession(): AuthSession | null {
+    const saved = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
+    if (!saved) return null;
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return null;
+    }
+  }
+
+  setAuthSession(session: AuthSession) {
+    localStorage.setItem(STORAGE_KEYS.AUTH_SESSION, JSON.stringify(session));
+    this.setCurrentRole(session.role);
+    if (session.user.villageId) {
+      this.setSelectedVillageId(session.user.villageId);
+    }
+    this.notifyChange();
+  }
+
+  clearAuthSession() {
+    localStorage.removeItem(STORAGE_KEYS.AUTH_SESSION);
+    this.notifyChange();
+  }
+
+  loginAdmin(email: string): AuthSession {
+    const session: AuthSession = {
+      isAuthenticated: true,
+      role: 'admin',
+      user: {
+        id: 'usr_admin_01',
+        name: 'Dr. Rajeshwari Sharma, IAS',
+        email: email || 'admin.district@gramverse.gov.in',
+        designation: 'District Collector & Magistrate (Sehore, MP)',
+        phone: '+91 98290 11223'
+      }
+    };
+    this.setAuthSession(session);
+    return session;
+  }
+
+  loginPanchayat(panchId: string, villageId: string): AuthSession {
+    const village = this.getVillages().find(v => v.id === villageId) || this.getVillages()[0];
+    const session: AuthSession = {
+      isAuthenticated: true,
+      role: 'panchayat',
+      user: {
+        id: `usr_panch_${panchId || '01'}`,
+        name: 'Mahendra Patel',
+        email: 'sarpanch.kothri@panchayat.gov.in',
+        designation: `Sarpanch, Gram Panchayat ${village.name}`,
+        villageId: village.id,
+        villageName: village.name,
+        panchId: panchId || 'PANCH-MP-001',
+        phone: '+91 94250 44556'
+      }
+    };
+    this.setAuthSession(session);
+    return session;
+  }
+
+  loginCitizen(villageName: string, citizenName: string, aadharNumber: string): AuthSession {
+    const village = this.getVillages().find(v => v.name.toLowerCase() === villageName.toLowerCase()) || 
+                    this.getVillages().find(v => v.id === villageName) || 
+                    this.getVillages()[0];
+    const cleanAadhar = aadharNumber.replace(/\D/g, '');
+    const lastFour = cleanAadhar.slice(-4) || '7890';
+    const formattedAadhar = cleanAadhar.length === 12 
+      ? `${cleanAadhar.slice(0, 4)}-${cleanAadhar.slice(4, 8)}-${cleanAadhar.slice(8, 12)}`
+      : (aadharNumber || `9823-4512-${lastFour}`);
+
+    const session: AuthSession = {
+      isAuthenticated: true,
+      role: 'citizen',
+      user: {
+        id: `usr_citizen_${Date.now()}`,
+        name: citizenName.trim() || 'Rameshwar Lal Gurjar',
+        email: `${(citizenName.trim() || 'citizen').toLowerCase().replace(/\s+/g, '.')}@village.in`,
+        designation: `Resident & Citizen (Ward 3, ${village.name})`,
+        villageId: village.id,
+        villageName: village.name,
+        aadharNumber: formattedAadhar,
+        phone: '+91 97850 77889'
+      }
+    };
+    this.setAuthSession(session);
+    return session;
+  }
+
+  loginSurvey(employeeId: string, villageId?: string): AuthSession {
+    const village = villageId ? (this.getVillages().find(v => v.id === villageId) || this.getVillages()[0]) : this.getVillages()[0];
+    const session: AuthSession = {
+      isAuthenticated: true,
+      role: 'survey',
+      user: {
+        id: `usr_survey_${employeeId || '01'}`,
+        name: 'Pooja Verma',
+        email: 'pooja.surveyor@gramverse.ngo',
+        designation: 'Gram Mitra Field Surveyor (Ashta Block)',
+        villageId: village.id,
+        villageName: village.name,
+        employeeId: employeeId || 'SURV-MP-8821',
+        phone: '+91 96100 33445'
+      }
+    };
+    this.setAuthSession(session);
+    return session;
   }
 
   // Role Management
