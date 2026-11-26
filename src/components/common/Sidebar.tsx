@@ -94,33 +94,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             })}
           </nav>
         </div>
-
-        {/* AI Engine Status badge */}
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-2">
-          <div className="flex items-center justify-between font-bold text-slate-800 text-[11px]">
-            <span>AI Models Status</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          </div>
-
-          <div className="space-y-1.5 text-[10px] text-slate-500">
-            <div className="flex justify-between">
-              <span>NLP Classifier:</span>
-              <span className="font-semibold text-emerald-700">Active (v1.4)</span>
-            </div>
-            <div className="flex justify-between">
-              <span>CV Vision Model:</span>
-              <span className="font-semibold text-emerald-700">Ready</span>
-            </div>
-            <div className="flex justify-between">
-              <span>RAG Vector Store:</span>
-              <span className="font-semibold text-emerald-700">FAISS Index</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Prioritization:</span>
-              <span className="font-semibold text-emerald-700">Rule Logic</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-white flex flex-col items-center gap-2 shadow-sm">
