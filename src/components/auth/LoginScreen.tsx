@@ -56,7 +56,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const [surveyEmpId, setSurveyEmpId] = useState('');
   const [surveyPassword, setSurveyPassword] = useState('');
 
-  // Auto demo autofills
+  // 1-Click demo autofill helpers
   const fillAdminDemo = () => {
     setAdminEmail('admin.district@gramverse.gov.in');
     setAdminPassword('admin123');
@@ -83,7 +83,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     setErrorMessage(null);
   };
 
-  // Handle Form Submission
+  // Form submission handler
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -141,41 +141,41 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-slate-100 flex flex-col justify-between py-6 px-4 sm:px-6 lg:px-8">
-      {/* Top Header Row with Logo & Language Switcher */}
-      <header className="max-w-6xl w-full mx-auto flex items-center justify-between pb-4 border-b border-slate-700/60">
+    <div className="min-h-screen bg-slate-100 flex flex-col justify-between py-4 px-3 sm:px-6 text-slate-800">
+      {/* Top Header Bar */}
+      <header className="max-w-3xl w-full mx-auto flex items-center justify-between pb-3 border-b border-slate-200">
         <div className="flex items-center gap-3">
           <img
             src="/logo.jpg"
             alt="GramVerse AI Logo"
-            className="h-12 sm:h-14 w-auto rounded-xl object-contain shadow-lg border border-slate-700 bg-[#17232b] p-1.5"
+            className="h-10 sm:h-11 w-auto rounded-lg object-contain shadow-xs border border-slate-300 bg-[#17232b] p-1 shrink-0"
           />
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-white text-base sm:text-lg tracking-tight">
+            <div className="flex items-center gap-1.5">
+              <span className="font-black text-slate-900 text-sm sm:text-base tracking-tight">
                 GRAMVERSE AI
               </span>
-              <span className="bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Gov Cloud
+              <span className="bg-emerald-600 text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded-sm uppercase tracking-wider">
+                GOV CLOUD
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-medium">
+            <p className="text-[11px] text-slate-500 font-medium hidden sm:block">
               Digital Gram Swaraj & Role-Based Rural Governance Platform
             </p>
           </div>
         </div>
 
         {/* Language Selection */}
-        <div className="flex items-center gap-2 bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-1.5 shadow-md">
-          <Globe className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="flex items-center gap-1.5 bg-white border border-slate-300 rounded-lg px-2.5 py-1 shadow-2xs">
+          <Globe className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
           <select
             value={language}
             onChange={e => setLanguage(e.target.value as SupportedLanguage)}
-            className="bg-transparent text-slate-200 text-xs font-semibold outline-none cursor-pointer"
+            className="bg-transparent text-slate-700 text-xs font-semibold outline-hidden cursor-pointer"
             title="Choose Indian Language (भाषा चुनें)"
           >
             {languageOptions.map(opt => (
-              <option key={opt.code} value={opt.code} className="bg-slate-900 text-white">
+              <option key={opt.code} value={opt.code}>
                 {opt.nativeName} ({opt.name})
               </option>
             ))}
@@ -183,215 +183,215 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         </div>
       </header>
 
-      {/* Main Login Card Section */}
-      <main className="max-w-4xl w-full mx-auto my-6 sm:my-8 bg-slate-900/95 border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-md">
-        {/* Portal Greeting Banner */}
-        <div className="bg-gradient-to-r from-emerald-900/80 via-slate-800/90 to-indigo-900/80 p-6 border-b border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Main Login Card - Compact & Light */}
+      <main className="max-w-2xl w-full mx-auto my-auto bg-white border border-slate-200 rounded-2xl shadow-lg shadow-slate-200/70 overflow-hidden">
+        {/* Compact Card Header */}
+        <div className="px-5 py-3.5 bg-slate-50/90 border-b border-slate-200 flex items-center justify-between gap-3">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 mb-2">
-              <ShieldCheck className="w-3.5 h-3.5" /> Official Authentication Gateway
+            <div className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Official Authentication Gateway</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+            <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-tight">
               Select Your Access Portal
             </h1>
-            <p className="text-xs text-slate-300 mt-1">
-              Secure role-based login for District Administration, Gram Panchayats, Citizens, and Field Surveyors.
-            </p>
           </div>
-
-          <div className="flex items-center gap-2 text-xs text-slate-300 bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-700 self-start sm:self-auto">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>256-Bit Encrypted Session</span>
+          <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-500 font-medium bg-white px-2 py-1 rounded-md border border-slate-200">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>256-Bit SSL Encrypted</span>
           </div>
         </div>
 
-        {/* 4 Role Switcher Tabs */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-1 p-2 bg-slate-950/60 border-b border-slate-800 text-xs font-bold">
-          <button
-            type="button"
-            onClick={() => {
-              setActiveRole('admin');
-              setErrorMessage(null);
-            }}
-            className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl transition ${
-              activeRole === 'admin'
-                ? 'bg-indigo-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-            }`}
-          >
-            <Building2 className="w-4 h-4" />
-            <span>District Admin</span>
-          </button>
+        {/* 4-Role Segmented Selector Tabs */}
+        <div className="p-2.5 bg-slate-100/70 border-b border-slate-200">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-white p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveRole('admin');
+                setErrorMessage(null);
+              }}
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg transition text-xs ${
+                activeRole === 'admin'
+                  ? 'bg-indigo-600 text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>District Admin</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setActiveRole('panchayat');
-              setErrorMessage(null);
-            }}
-            className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl transition ${
-              activeRole === 'panchayat'
-                ? 'bg-emerald-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-            }`}
-          >
-            <Landmark className="w-4 h-4" />
-            <span>Gram Panchayat</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveRole('panchayat');
+                setErrorMessage(null);
+              }}
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg transition text-xs ${
+                activeRole === 'panchayat'
+                  ? 'bg-emerald-600 text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <Landmark className="w-3.5 h-3.5" />
+              <span>Gram Panchayat</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setActiveRole('citizen');
-              setErrorMessage(null);
-            }}
-            className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl transition ${
-              activeRole === 'citizen'
-                ? 'bg-sky-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-            }`}
-          >
-            <User className="w-4 h-4" />
-            <span>Citizen Jan Seva</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveRole('citizen');
+                setErrorMessage(null);
+              }}
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg transition text-xs ${
+                activeRole === 'citizen'
+                  ? 'bg-sky-600 text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Citizen Seva</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setActiveRole('survey');
-              setErrorMessage(null);
-            }}
-            className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl transition ${
-              activeRole === 'survey'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-            }`}
-          >
-            <ClipboardList className="w-4 h-4" />
-            <span>Field Surveyor</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveRole('survey');
+                setErrorMessage(null);
+              }}
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg transition text-xs ${
+                activeRole === 'survey'
+                  ? 'bg-amber-600 text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <ClipboardList className="w-3.5 h-3.5" />
+              <span>Field Surveyor</span>
+            </button>
+          </div>
         </div>
 
-        {/* Dynamic Role Form Body */}
-        <div className="p-6 sm:p-8">
+        {/* Dynamic Form Body - Compact & Light */}
+        <div className="p-5 sm:p-6 space-y-3.5">
           {errorMessage && (
-            <div className="mb-6 p-3.5 bg-rose-950/80 border border-rose-500/50 rounded-xl text-rose-200 text-xs flex items-center gap-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+            <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-3.5">
             {/* 1. ADMIN FORM */}
             {activeRole === 'admin' && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-indigo-900 uppercase tracking-wide">
                     District & Block Administration Credentials
-                  </div>
+                  </span>
                   <button
                     type="button"
                     onClick={fillAdminDemo}
-                    className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-semibold underline underline-offset-4"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2 py-0.5 rounded-md transition"
                   >
-                    <Sparkles className="w-3.5 h-3.5" /> 1-Click Demo Fill
+                    <Sparkles className="w-3 h-3 text-indigo-600" /> 1-Click Demo Fill
                   </button>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    Official Email ID <span className="text-rose-400">*</span>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Official Email ID <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
                       type="email"
                       required
                       value={adminEmail}
                       onChange={e => setAdminEmail(e.target.value)}
                       placeholder="e.g. admin.district@gramverse.gov.in"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+                      className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    Admin Password <span className="text-rose-400">*</span>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Admin Password <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={adminPassword}
                       onChange={e => setAdminPassword(e.target.value)}
                       placeholder="Enter administrator password"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+                      className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-9 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-200"
+                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
 
-                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-[11px] text-slate-400">
-                  Default Demo: <code className="text-indigo-300">admin.district@gramverse.gov.in</code> / Password: <code className="text-indigo-300">admin123</code>
+                <div className="p-2 bg-slate-50 rounded-lg border border-slate-200 text-[11px] text-slate-600 flex items-center justify-between">
+                  <span>Demo: <code className="text-indigo-700 font-semibold">admin.district@gramverse.gov.in</code></span>
+                  <span>Pass: <code className="text-indigo-700 font-semibold">admin123</code></span>
                 </div>
               </div>
             )}
 
             {/* 2. PANCHAYAT FORM */}
             {activeRole === 'panchayat' && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-emerald-900 uppercase tracking-wide">
                     Gram Panchayat Official Credentials
-                  </div>
+                  </span>
                   <button
                     type="button"
                     onClick={fillPanchayatDemo}
-                    className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-semibold underline underline-offset-4"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md transition"
                   >
-                    <Sparkles className="w-3.5 h-3.5" /> 1-Click Demo Fill
+                    <Sparkles className="w-3 h-3 text-emerald-600" /> 1-Click Demo Fill
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                      Unique Panch ID <span className="text-rose-400">*</span>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Unique Panch ID <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <Key className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <Key className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                       <input
                         type="text"
                         required
                         value={panchId}
                         onChange={e => setPanchId(e.target.value)}
                         placeholder="e.g. PANCH-MP-001"
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+                        className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                      Village Gram Panchayat <span className="text-rose-400">*</span>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Village Gram Panchayat <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                       <select
                         value={panchayatVillageId}
                         onChange={e => setPanchayatVillageId(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition cursor-pointer"
+                        className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition cursor-pointer"
                       >
                         {villages.map(v => (
-                          <option key={v.id} value={v.id} className="bg-slate-900 text-white">
+                          <option key={v.id} value={v.id}>
                             {v.name} GP ({v.block} Block)
                           </option>
                         ))}
@@ -401,65 +401,66 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    Panchayat Password <span className="text-rose-400">*</span>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Panchayat Password <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={panchayatPassword}
                       onChange={e => setPanchayatPassword(e.target.value)}
                       placeholder="Enter Panchayat portal password"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+                      className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-9 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-200"
+                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
 
-                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-[11px] text-slate-400">
-                  Default Demo: Panch ID: <code className="text-emerald-300">PANCH-MP-001</code> / Village: <code className="text-emerald-300">Kothri Kalan</code> / Password: <code className="text-emerald-300">panchayat123</code>
+                <div className="p-2 bg-slate-50 rounded-lg border border-slate-200 text-[11px] text-slate-600 flex items-center justify-between">
+                  <span>Panch ID: <code className="text-emerald-700 font-semibold">PANCH-MP-001</code></span>
+                  <span>Pass: <code className="text-emerald-700 font-semibold">panchayat123</code></span>
                 </div>
               </div>
             )}
 
             {/* 3. CITIZEN FORM */}
             {activeRole === 'citizen' && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="text-xs font-bold text-sky-400 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-sky-900 uppercase tracking-wide">
                     Citizen Jan Seva Login Credentials
-                  </div>
+                  </span>
                   <button
                     type="button"
                     onClick={fillCitizenDemo}
-                    className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-semibold underline underline-offset-4"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-sky-700 hover:text-sky-900 bg-sky-50 hover:bg-sky-100 border border-sky-200 px-2 py-0.5 rounded-md transition"
                   >
-                    <Sparkles className="w-3.5 h-3.5" /> 1-Click Demo Fill
+                    <Sparkles className="w-3 h-3 text-sky-600" /> 1-Click Demo Fill
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                      Village Name <span className="text-rose-400">*</span>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Village Name <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                       <select
                         value={citizenVillage}
                         onChange={e => setCitizenVillage(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-sky-500 transition cursor-pointer"
+                        className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-hidden focus:border-sky-600 focus:ring-1 focus:ring-sky-600 transition cursor-pointer"
                       >
                         {villages.map(v => (
-                          <option key={v.id} value={v.name} className="bg-slate-900 text-white">
+                          <option key={v.id} value={v.name}>
                             {v.name} ({v.block} Block)
                           </option>
                         ))}
@@ -468,29 +469,29 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                      Name of Citizen <span className="text-rose-400">*</span>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Name of Citizen <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <User className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                       <input
                         type="text"
                         required
                         value={citizenName}
                         onChange={e => setCitizenName(e.target.value)}
                         placeholder="e.g. Rameshwar Lal Gurjar"
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 transition"
+                        className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden focus:border-sky-600 focus:ring-1 focus:ring-sky-600 transition"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    Aadhaar Number of Citizen (12 Digits) <span className="text-slate-400">(Optional for Demo)</span>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Aadhaar Number of Citizen (12 Digits) <span className="text-slate-400 font-normal">(Optional for Demo)</span>
                   </label>
                   <div className="relative">
-                    <CreditCard className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <CreditCard className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
                       type="text"
                       maxLength={14}
@@ -500,92 +501,94 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                         setCitizenAadhaar(val);
                       }}
                       placeholder="e.g. 9823-4512-7890"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 tracking-wider transition"
+                      className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden focus:border-sky-600 focus:ring-1 focus:ring-sky-600 tracking-wider transition"
                     />
                   </div>
                 </div>
 
-                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-[11px] text-slate-400">
-                  Direct Citizen Seva access for lodging complaints, checking grievance status, tracking JJM water pipeline, and GramBot AI assistance.
+                <div className="p-2 bg-slate-50 rounded-lg border border-slate-200 text-[11px] text-slate-600 flex items-center justify-between">
+                  <span>Village: <strong className="text-slate-800">{citizenVillage}</strong></span>
+                  <span>Direct Citizen Seva & Grievance Lodging</span>
                 </div>
               </div>
             )}
 
             {/* 4. SURVEYOR FORM */}
             {activeRole === 'survey' && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wide">
                     Field Data Collector Credentials
-                  </div>
+                  </span>
                   <button
                     type="button"
                     onClick={fillSurveyDemo}
-                    className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-semibold underline underline-offset-4"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-md transition"
                   >
-                    <Sparkles className="w-3.5 h-3.5" /> 1-Click Demo Fill
+                    <Sparkles className="w-3 h-3 text-amber-600" /> 1-Click Demo Fill
                   </button>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    Employee ID <span className="text-rose-400">*</span>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Employee ID <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
-                    <ClipboardList className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <ClipboardList className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
                       type="text"
                       required
                       value={surveyEmpId}
                       onChange={e => setSurveyEmpId(e.target.value)}
                       placeholder="e.g. SURV-MP-8821"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+                      className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden focus:border-amber-600 focus:ring-1 focus:ring-amber-600 transition"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    Surveyor Password <span className="text-rose-400">*</span>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Surveyor Password <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={surveyPassword}
                       onChange={e => setSurveyPassword(e.target.value)}
                       placeholder="Enter field surveyor password"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+                      className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-9 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden focus:border-amber-600 focus:ring-1 focus:ring-amber-600 transition"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-200"
+                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
 
-                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-[11px] text-slate-400">
-                  <span className="text-amber-300 font-semibold">Note:</span> Once logged in, surveyors can select and switch between assigned villages right inside the Survey Dashboard!
+                <div className="p-2 bg-slate-50 rounded-lg border border-slate-200 text-[11px] text-slate-600 flex items-center justify-between">
+                  <span>Emp ID: <code className="text-amber-700 font-semibold">SURV-MP-8821</code></span>
+                  <span>Pass: <code className="text-amber-700 font-semibold">survey123</code></span>
                 </div>
               </div>
             )}
 
-            {/* Submit Action Button */}
-            <div className="pt-2">
+            {/* Action Submit Button */}
+            <div className="pt-1">
               <button
                 type="submit"
-                className={`w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white shadow-lg transition flex items-center justify-center gap-2 cursor-pointer ${
+                className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white shadow-md transition flex items-center justify-center gap-2 cursor-pointer ${
                   activeRole === 'admin'
-                    ? 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-900/50'
+                    ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200'
                     : activeRole === 'panchayat'
-                    ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-900/50'
+                    ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200'
                     : activeRole === 'citizen'
-                    ? 'bg-sky-600 hover:bg-sky-500 shadow-sky-900/50'
-                    : 'bg-amber-600 hover:bg-amber-500 shadow-amber-900/50'
+                    ? 'bg-sky-600 hover:bg-sky-700 shadow-sky-200'
+                    : 'bg-amber-600 hover:bg-amber-700 shadow-amber-200'
                 }`}
               >
                 <span>
@@ -594,32 +597,29 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   {activeRole === 'citizen' && 'Access Citizen Jan Seva Portal'}
                   {activeRole === 'survey' && 'Sign In to Field Surveyor PWA'}
                 </span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </form>
         </div>
 
-        {/* Card Footer Security Trust Badges */}
-        <div className="px-6 py-4 bg-slate-950/80 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-4 text-[11px] text-slate-400">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> NIC Standard Compliant
+        {/* Compact Trust Footer */}
+        <div className="px-5 py-2.5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-500">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1 font-medium text-emerald-800">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" /> NIC Verified
             </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Aadhaar Data Vault Ready
+            <span className="flex items-center gap-1 font-medium text-emerald-800">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Aadhaar Vault Ready
             </span>
           </div>
-
-          <div className="text-slate-500">
-            GramVerse AI • Sehore District Implementation
-          </div>
+          <div>GramVerse AI • Sehore District Implementation</div>
         </div>
       </main>
 
-      {/* Footer copyright */}
-      <footer className="text-center text-xs text-slate-500 py-2">
-        GramVerse AI Rural Governance Platform • Designed for Panchayat Raj & District Administration
+      {/* Page Footer */}
+      <footer className="text-center text-[11px] text-slate-500 py-2">
+        GramVerse AI • Digital Gram Swaraj & Rural Governance Platform
       </footer>
     </div>
   );
